@@ -2,7 +2,7 @@ package com.ludicomm.data.repository
 
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseUser
-import com.ludicomm.util.Resource
+import com.ludicomm.util.stateHandlers.Resource
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {

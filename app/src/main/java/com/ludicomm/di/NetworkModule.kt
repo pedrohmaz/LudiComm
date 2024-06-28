@@ -1,9 +1,13 @@
 package com.ludicomm.di
 
+import android.content.Context
 import com.ludicomm.data.source.BGGApi
+import com.ludicomm.util.ConnectivityObserver
+import com.ludicomm.util.ConnectivityObserverImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -39,6 +43,13 @@ object NetworkModule {
     @Singleton
     fun provideBGGApi(retrofit: Retrofit): BGGApi {
        return retrofit.create(BGGApi::class.java)
+    }
+
+
+    @Provides
+    @Singleton
+    fun providesConnectivityObserver(@ApplicationContext context: Context) : ConnectivityObserver {
+        return ConnectivityObserverImpl(context)
     }
 
 }
