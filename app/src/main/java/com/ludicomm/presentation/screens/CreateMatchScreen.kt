@@ -189,7 +189,8 @@ fun CreateMatchScreen(
                                     faction = factionInput,
                                     score = scoreInput,
                                     color = selectedColor?.toArgb()?.toString() ?: Black.toArgb()
-                                        .toString()
+                                        .toString(),
+                                    isWinner = playerList[editIndex].isWinner
                                 )
                             )
                             toggleEditPlayerWindow = false
@@ -236,8 +237,9 @@ fun CreateMatchScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Spacer(Modifier.width(20.dp))
                         Text(text = "Name")
-                        Spacer(modifier = Modifier.width(52.dp))
+                        Spacer(modifier = Modifier.width(48.dp))
                         Text(text = "Color/Faction")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = "Score")
@@ -262,7 +264,9 @@ fun CreateMatchScreen(
                                 viewModel.changeInput(it.score, CreateMatchInputFields.Score)
                                 viewModel.changeSelectedColor(Color(it.color.toInt()))
                                 toggleEditPlayerWindow = true
-                            })
+                            },
+                            onWinnerStarClick = {it.isWinner = !it.isWinner}
+                            )
                     }
                 }
                 Spacer(modifier = Modifier.height(36.dp))

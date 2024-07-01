@@ -7,7 +7,7 @@ data class Match(
     val numberOfPlayers: Int = -1,
     val playerNames: List<String> = emptyList(),
     val playerDataList: MutableList<PlayerMatchData> = mutableListOf(),
-    val winner: String? = null,
+    val winners: List<String> = listOf(),
     val obs: String = ""
 
 )

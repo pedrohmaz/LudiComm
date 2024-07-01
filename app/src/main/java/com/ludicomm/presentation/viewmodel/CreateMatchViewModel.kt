@@ -107,12 +107,16 @@ class CreateMatchViewModel @Inject constructor(private val firestoreRepository: 
     fun submitMatch() {
         viewModelScope.launch(Dispatchers.IO) {
             val nameList = mutableListOf<String>()
-            _playerList.value.forEach { nameList.add(it.name) }
+            val winnerList = mutableListOf<String>()
+            _playerList.value.forEach { nameList.add(it.name)
+            if (it.isWinner) winnerList.add(it.name)
+            }
             val match = Match(
                 game = _gameQueryInput.value,
                 dateAndTime = System.currentTimeMillis().toString(),
                 numberOfPlayers = _playerList.value.size,
-                playerNames = nameList.toList()
+                playerNames = nameList.toList(),
+                winners = winnerList
             )
             playerList.value.forEach { match.playerDataList.add(it) }
             firestoreRepository.submitMatch(match).collect{result ->

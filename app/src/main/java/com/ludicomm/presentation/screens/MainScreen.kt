@@ -25,7 +25,8 @@ fun MainScreen(
     viewModel: MainViewModel = hiltViewModel(),
     onNavigateToCreateMatch: () -> Unit,
     onNavigateToLogin: () -> Unit,
-    onNavigateToMyMatches: () -> Unit
+    onNavigateToMyMatches: () -> Unit,
+    onNavigateToMyStats: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -72,6 +73,10 @@ fun MainScreen(
 
                 Button(onClick = { onNavigateToMyMatches() }) {
                     Text(text = "My matches")
+                }
+
+                Button(onClick = { onNavigateToMyStats() }) {
+                    Text(text = "My stats")
                 }
 
                 Button(onClick = {viewModel.signOut()}) {

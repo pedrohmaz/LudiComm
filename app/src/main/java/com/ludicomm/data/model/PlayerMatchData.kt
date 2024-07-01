@@ -7,6 +7,7 @@ data class PlayerMatchData(
     val faction: String = "",
     val score: String = "0",
     val color: String = Black.toString(),
+    var isWinner: Boolean = false
 
     )
 

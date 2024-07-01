@@ -34,7 +34,8 @@ fun Navigator(navController: NavHostController = rememberNavController(), authRe
                 MainScreen(
                     onNavigateToCreateMatch = { navController.navigate(CREATE_MATCH) },
                     onNavigateToLogin = { navController.navigate(LOGIN) },
-                    onNavigateToMyMatches = {navController.navigate(MY_MATCHES)}
+                    onNavigateToMyMatches = {navController.navigate(MY_MATCHES)},
+                    onNavigateToMyStats = {}
                 )
             }
         }
