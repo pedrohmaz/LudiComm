@@ -7,6 +7,7 @@ import com.ludicomm.data.model.Match
 import com.ludicomm.data.model.PlayerMatchData
 import com.ludicomm.data.repository.FirestoreRepository
 import com.ludicomm.util.CreateMatchInputFields
+import com.ludicomm.util.RegistrationUtil
 import com.ludicomm.util.mockedGameList
 import com.ludicomm.util.stateHandlers.CreateMatchState
 import com.ludicomm.util.stateHandlers.Resource
@@ -104,29 +105,38 @@ class CreateMatchViewModel @Inject constructor(private val firestoreRepository: 
         }
     }
 
+    fun resetState(){ _state.value = CreateMatchState()}
+
     fun submitMatch() {
         viewModelScope.launch(Dispatchers.IO) {
             val nameList = mutableListOf<String>()
             val winnerList = mutableListOf<String>()
-            _playerList.value.forEach { nameList.add(it.name)
-            if (it.isWinner) winnerList.add(it.name)
+            _playerList.value.forEach {
+                nameList.add(it.name)
+                if (it.isWinner) winnerList.add(it.name)
             }
-            val match = Match(
-                game = _gameQueryInput.value,
-                dateAndTime = System.currentTimeMillis().toString(),
-                numberOfPlayers = _playerList.value.size,
-                playerNames = nameList.toList(),
-                winners = winnerList
-            )
-            playerList.value.forEach { match.playerDataList.add(it) }
-            firestoreRepository.submitMatch(match).collect{result ->
-                when(result){
-                    is Resource.Error -> _state.value = CreateMatchState(isFailure = result.message.toString())
-                    is Resource.Loading -> {}
-                    is Resource.Success -> _state.value = CreateMatchState(isSuccess = "Match submitted successfully")
-                }
-            }
+            val result =
+                RegistrationUtil.validateMatchSubmission(_gameQueryInput.value, _playerList.value)
+            if (result is Resource.Success) {
+                val match = Match(
+                    game = _gameQueryInput.value,
+                    dateAndTime = System.currentTimeMillis().toString(),
+                    numberOfPlayers = _playerList.value.size,
+                    playerNames = nameList.toList(),
+                    winners = winnerList
+                )
+                playerList.value.forEach { match.playerDataList.add(it) }
+                firestoreRepository.submitMatch(match).collect { firestoreResult ->
+                    when (firestoreResult) {
+                        is Resource.Error -> _state.value =
+                            CreateMatchState(isError = result.message.toString())
 
+                        is Resource.Loading -> {}
+                        is Resource.Success -> _state.value =
+                            CreateMatchState(isSuccess = "Match submitted successfully")
+                    }
+                }
+            } else _state.value = CreateMatchState(isError = result.message.toString())
         }
     }
 

@@ -1,5 +1,6 @@
 package com.ludicomm.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ludicomm.data.repository.AuthRepository
@@ -45,36 +46,50 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
+    fun resetState() {
+        _signUpState.value = SignUpState()
+    }
+
     suspend fun registerUser(username: String, email: String, password: String) =
         viewModelScope.launch {
-            if (RegistrationUtil.validateRegistration(username, password, _confirmPasswordInput.value)) {
-                authRepository.registerUser(username, email, password).collect { result ->
-                    when (result) {
-                        is Resource.Success -> {
-                            firestoreRepository.registerUser(
-                                authRepository.currentUser()?.uid.toString(),
-                                username
-                            ).collect {
-                                    if (it is Resource.Success){
+            RegistrationUtil.validateUserRegistration(
+                username,
+                email,
+                password,
+                _confirmPasswordInput.value
+            ).collect { validationResult ->
+                if (validationResult is Resource.Success) {
+                    authRepository.registerUser(username, email, password).collect { authResult ->
+                        when (authResult) {
+                            is Resource.Success -> {
+                                firestoreRepository.registerUser(
+                                    authRepository.currentUser()?.uid.toString(),
+                                    username
+                                ).collect { firestoreResult ->
+                                    if (firestoreResult is Resource.Success) {
                                         _signUpState.value = SignUpState(isSuccess = "User Created")
-                                    }
-                                    else {
+                                    } else {
                                         authRepository.currentUser()?.delete()
                                         _signUpState.value =
-                                            SignUpState(isError = "Could not register user: ${it.message}")
+                                            SignUpState(isError = "Could not register user: ${firestoreResult.message}")
                                     }
                                 }
-                        }
-                        is Resource.Loading -> {
-                            _signUpState.value = SignUpState(isLoading = true)
-                        }
-                        is Resource.Error -> {
-                            _signUpState.value = SignUpState(isError = result.message)
+                            }
+
+                            is Resource.Loading -> {
+                                _signUpState.value = SignUpState(isLoading = true)
+                            }
+
+                            is Resource.Error -> {
+                                _signUpState.value = SignUpState(isError = authResult.message.toString())
+                            }
                         }
                     }
-                }
+                } else _signUpState.value = SignUpState(isError = validationResult.message.toString())
             }
-            else _signUpState.value = SignUpState(isError = "Validation Error")
         }
 
 }
+
+
+

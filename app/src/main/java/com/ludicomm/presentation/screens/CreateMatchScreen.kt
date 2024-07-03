@@ -94,11 +94,14 @@ fun CreateMatchScreen(
     }
 
     LaunchedEffect(key1 = state) {
-        if (state.isFailure.isNotBlank()) Toast.makeText(
-            context,
-            state.isFailure,
-            Toast.LENGTH_SHORT
-        ).show()
+        if (state.isError.isNotBlank()) {
+            Toast.makeText(
+                context,
+                state.isError,
+                Toast.LENGTH_SHORT
+            ).show()
+            viewModel.resetState()
+        }
         else if (state.isSuccess.isNotBlank()) {
             Toast.makeText(
                 context,
@@ -106,6 +109,7 @@ fun CreateMatchScreen(
                 Toast.LENGTH_SHORT
             ).show()
             onNavigateToMain()
+            viewModel.resetState()
         }
     }
 
@@ -167,7 +171,7 @@ fun CreateMatchScreen(
                                 PlayerMatchData(
                                     name = nameInput.ifBlank { "Player ${editIndex + 1}" },
                                     faction = factionInput,
-                                    score = scoreInput,
+                                    score = scoreInput.ifBlank { "0" },
                                     color = selectedColor?.toArgb()?.toString() ?: Black.toArgb()
                                         .toString()
                                 )
@@ -187,7 +191,7 @@ fun CreateMatchScreen(
                                 editIndex, PlayerMatchData(
                                     name = nameInput.ifBlank { "Player ${editIndex + 1}" },
                                     faction = factionInput,
-                                    score = scoreInput,
+                                    score = scoreInput.ifBlank { "0" },
                                     color = selectedColor?.toArgb()?.toString() ?: Black.toArgb()
                                         .toString(),
                                     isWinner = playerList[editIndex].isWinner
@@ -265,8 +269,8 @@ fun CreateMatchScreen(
                                 viewModel.changeSelectedColor(Color(it.color.toInt()))
                                 toggleEditPlayerWindow = true
                             },
-                            onWinnerStarClick = {it.isWinner = !it.isWinner}
-                            )
+                            onWinnerStarClick = { it.isWinner = !it.isWinner }
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(36.dp))
@@ -282,15 +286,8 @@ fun CreateMatchScreen(
                 }
                 Spacer(modifier = Modifier.height(64.dp))
                 Button(modifier = Modifier.align(Alignment.CenterHorizontally),
-                    onClick = {
-                        if (gameQueryInput.isNotBlank() && playerList.isNotEmpty()) {
-                            viewModel.submitMatch()
-                        } else Toast.makeText(
-                            context,
-                            "Make sure there is a game selected and at least one player added",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }) {
+                    onClick = { viewModel.submitMatch() })
+                {
                     Text(text = "Submit Match")
                 }
             }

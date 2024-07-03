@@ -10,4 +10,6 @@ interface FirestoreRepository {
 
    suspend fun submitMatch(match: Match): Flow<Resource<Unit>>
 
+   suspend fun getAllUserMatches(user: String): List<Match>
+
 }

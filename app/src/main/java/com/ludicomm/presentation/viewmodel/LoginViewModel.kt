@@ -51,7 +51,7 @@ class LoginViewModel @Inject constructor(
                 }
 
                 is Resource.Error -> {
-                    _logInState.value = LogInState(isError = result.message)
+                    _logInState.value = LogInState(isError = result.message.toString())
                 }
             }
         }

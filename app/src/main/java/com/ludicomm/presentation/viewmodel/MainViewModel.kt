@@ -66,19 +66,20 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    suspend fun sendEmailVerification(): String {
+    suspend fun sendEmailVerification(navigate: () -> Unit): String {
         return try {
             authRepository.currentUser()?.sendEmailVerification()?.await()
             _emailSent.value = true
-            signOut()
+            signOut(navigate)
             "Email sent. Please check your email inbox."
         } catch (e: Exception) {
             "Could not send email. Please check your internet connection."
         }
     }
 
-    fun signOut(){
+    fun signOut(navigate: () -> Unit){
         authRepository.signOutUser()
+        navigate()
     }
 
 

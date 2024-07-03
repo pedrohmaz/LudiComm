@@ -150,6 +150,7 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), onNavigateToLogin
                         val error = state.isError
                         Toast.makeText(context, "$error", Toast.LENGTH_SHORT)
                             .show()
+                        viewModel.resetState()
                 }
 
 

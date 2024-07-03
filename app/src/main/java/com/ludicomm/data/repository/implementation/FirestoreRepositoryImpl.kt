@@ -3,6 +3,7 @@ package com.ludicomm.data.repository.implementation
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.firestoreSettings
+import com.google.firebase.firestore.toObjects
 import com.ludicomm.data.model.Match
 import com.ludicomm.data.model.User
 import com.ludicomm.data.repository.FirestoreRepository
@@ -42,6 +43,12 @@ class FirestoreRepositoryImpl @Inject constructor(private val firestore: Firebas
                 }
             }
         }
+    }
+
+    override suspend fun getAllUserMatches(user: String): List<Match> {
+        return firestore.collection("matches")
+            .whereArrayContains("playerNames", user).get()
+            .await().toObjects<Match>()
     }
 }
 

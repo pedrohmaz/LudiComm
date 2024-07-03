@@ -50,7 +50,7 @@ fun MainScreen(
                 )
                 Button(onClick = {
                     scope.launch(Dispatchers.IO) {
-                        viewModel.sendEmailVerification().also {
+                        viewModel.sendEmailVerification(onNavigateToLogin).also {
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
                             }
@@ -61,7 +61,7 @@ fun MainScreen(
                     Text(text = "Verify email")
                 }
                 Button(onClick = {
-                    viewModel.signOut()
+                    viewModel.signOut(onNavigateToLogin)
                     onNavigateToLogin()
                 }) {
                     Text(text = "Sign Out")
@@ -79,7 +79,7 @@ fun MainScreen(
                     Text(text = "My stats")
                 }
 
-                Button(onClick = {viewModel.signOut()}) {
+                Button(onClick = { viewModel.signOut(onNavigateToLogin) }) {
                     Text(text = "Sign out")
                 }
             }

@@ -71,7 +71,7 @@ class SignUpViewModelTest {
         coEvery { firestoreRep.registerUser(UID, VALID_USERNAME) } returns flowOf(
             firestoreResultMock
         )
-        every { RegistrationUtil.validateRegistration(any(), any(), any()) } returns true
+        every { RegistrationUtil.validateUserRegistration(any(), any(), any()) } returns true
         every { authRep.currentUser() } returns mockk(relaxed = true) {
             every { this@mockk.uid } returns UID
         }
@@ -84,7 +84,7 @@ class SignUpViewModelTest {
     @Test
     fun `validateRegistration fail returns error message `() = testScope.runTest {
         every {
-            RegistrationUtil.validateRegistration(
+            RegistrationUtil.validateUserRegistration(
                 VALID_USERNAME,
                 INVALID_PASSWORD,
                 INVALID_PASSWORD
@@ -98,7 +98,7 @@ class SignUpViewModelTest {
     @Test
     fun `authRep_registerUser fail returns error message`() = testScope.runTest {
         every {
-            RegistrationUtil.validateRegistration(
+            RegistrationUtil.validateUserRegistration(
                 VALID_USERNAME,
                 VALID_PASSWORD,
                 VALID_PASSWORD
@@ -118,7 +118,7 @@ class SignUpViewModelTest {
         val authResultMock = mockk<AuthResult>()
 
         every {
-            RegistrationUtil.validateRegistration(
+            RegistrationUtil.validateUserRegistration(
                 VALID_USERNAME,
                 VALID_PASSWORD,
                 VALID_PASSWORD
