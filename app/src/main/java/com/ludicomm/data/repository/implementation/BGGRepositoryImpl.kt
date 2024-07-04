@@ -3,11 +3,11 @@ package com.ludicomm.data.repository.implementation
 import com.ludicomm.data.source.BGGApi
 import com.ludicomm.data.model.BoardGames
 import com.ludicomm.data.model.Collection
-import com.ludicomm.data.repository.Repository
+import com.ludicomm.data.repository.BGGRepository
 
-class RepositoryImpl(
+class BGGRepositoryImpl(
     private val bggApi: BGGApi
-) : Repository {
+) : BGGRepository {
 
     override suspend fun getBoardGames(search: String): BoardGames {
         return bggApi.getBoardGames(search)

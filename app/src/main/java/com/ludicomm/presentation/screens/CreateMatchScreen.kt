@@ -82,6 +82,7 @@ fun CreateMatchScreen(
 
     //toggles
     val toggleSuggestionList by viewModel.toggleSuggestionList.collectAsState()
+    val toggleNoWinnerDialog by viewModel.toggleNoWinnerDialog.collectAsState()
     var toggleNewPlayerWindow by remember { mutableStateOf(false) }
     var toggleEditPlayerWindow by remember { mutableStateOf(false) }
     var toggleConfirmDeleteWindow by remember { mutableStateOf(false) }
@@ -89,7 +90,7 @@ fun CreateMatchScreen(
 
 
     LaunchedEffect(key1 = gameQueryInput) {
-        viewModel.createSuggestions()
+        viewModel.createBGGSuggestions()
         Log.i("TAG", "CreateMatchScreen: $suggestionList")
     }
 
@@ -101,8 +102,7 @@ fun CreateMatchScreen(
                 Toast.LENGTH_SHORT
             ).show()
             viewModel.resetState()
-        }
-        else if (state.isSuccess.isNotBlank()) {
+        } else if (state.isSuccess.isNotBlank()) {
             Toast.makeText(
                 context,
                 state.isSuccess,
@@ -134,17 +134,16 @@ fun CreateMatchScreen(
 
             ) {
 
-                if (toggleConfirmDeleteWindow) {
-
+                if (toggleNoWinnerDialog) {
                     AlertDialog(
-                        title = { Text(text = "Delete player") },
-                        text = { Text(text = "Do you want to delete player?") },
-                        onDismissRequest = { toggleConfirmDeleteWindow = false },
+                        title = { Text(text = "No winner selected") },
+                        text = { Text(text = "Do you want to submit match without winners?") },
+                        onDismissRequest = { viewModel.toggleNoWinnerDialog(false) },
                         confirmButton = {
                             TextButton(
                                 onClick = {
-                                    viewModel.deletePlayer(playerList[editIndex])
-                                    toggleConfirmDeleteWindow = false
+                                    viewModel.submitNoWinnerMatch()
+                                    viewModel.toggleNoWinnerDialog(false)
                                 }) {
                                 Text(text = "Confirm")
                             }
@@ -152,147 +151,174 @@ fun CreateMatchScreen(
                         dismissButton = {
                             TextButton(
                                 onClick = {
-                                    toggleConfirmDeleteWindow = false
+                                    viewModel.toggleNoWinnerDialog(false)
                                 }) {
                                 Text(text = "Dismiss")
                             }
                         }
                     )
-
                 }
 
-                if (toggleNewPlayerWindow) {
-                    viewModel.clearInputs()
-                    EditPlayerWindow(
-                        viewModel = viewModel,
-                        onDismissRequest = { toggleNewPlayerWindow = false },
-                        onConfirmation = {
-                            viewModel.addPlayer(
-                                PlayerMatchData(
-                                    name = nameInput.ifBlank { "Player ${editIndex + 1}" },
-                                    faction = factionInput,
-                                    score = scoreInput.ifBlank { "0" },
-                                    color = selectedColor?.toArgb()?.toString() ?: Black.toArgb()
-                                        .toString()
-                                )
-                            )
-                            toggleNewPlayerWindow = false
-                        },
-                        dialogTitle = "New player"
-                    )
-                }
+            if (toggleConfirmDeleteWindow) {
 
-                if (toggleEditPlayerWindow) {
-                    EditPlayerWindow(
-                        viewModel = viewModel,
-                        onDismissRequest = { toggleEditPlayerWindow = false },
-                        onConfirmation = {
-                            viewModel.editPlayer(
-                                editIndex, PlayerMatchData(
-                                    name = nameInput.ifBlank { "Player ${editIndex + 1}" },
-                                    faction = factionInput,
-                                    score = scoreInput.ifBlank { "0" },
-                                    color = selectedColor?.toArgb()?.toString() ?: Black.toArgb()
-                                        .toString(),
-                                    isWinner = playerList[editIndex].isWinner
-                                )
-                            )
-                            toggleEditPlayerWindow = false
-                        },
-                        dialogTitle = "Edit player",
-                    )
-                }
-
-                Text(modifier = Modifier.padding(), text = "Game:", fontSize = 22.sp)
-
-                CustomTextField(
-                    text = gameQueryInput,
-                    onTextChange = { viewModel.changeInput(it, CreateMatchInputFields.GameQuery) },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = ""
-                        )
-                    },
-                    keyOpt = KeyboardOptions(keyboardType = KeyboardType.Text)
-                )
-                if (toggleSuggestionList) {
-                    LazyColumn {
-                        items(suggestionList) {
-                            TextButton(onClick = {
-                                viewModel.changeInput(it, CreateMatchInputFields.GameQuery)
-                                viewModel.toggleSuggestionList(false)
-                                val imm =
-                                    context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
-
+                AlertDialog(
+                    title = { Text(text = "Delete player") },
+                    text = { Text(text = "Do you want to delete player?") },
+                    onDismissRequest = { toggleConfirmDeleteWindow = false },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.deletePlayer(playerList[editIndex])
+                                toggleConfirmDeleteWindow = false
                             }) {
-                                Text(text = it, fontSize = 18.sp)
-                            }
+                            Text(text = "Confirm")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                toggleConfirmDeleteWindow = false
+                            }) {
+                            Text(text = "Dismiss")
+                        }
+                    }
+                )
+
+            }
+
+            if (toggleNewPlayerWindow) {
+                viewModel.clearInputs()
+                EditPlayerWindow(
+                    viewModel = viewModel,
+                    onDismissRequest = { toggleNewPlayerWindow = false },
+                    onConfirmation = {
+                        viewModel.addPlayer(
+                            PlayerMatchData(
+                                name = nameInput.ifBlank { "Player ${editIndex + 1}" },
+                                faction = factionInput,
+                                score = scoreInput.ifBlank { "0" },
+                                color = selectedColor?.toArgb()?.toString() ?: Black.toArgb()
+                                    .toString()
+                            )
+                        )
+                        toggleNewPlayerWindow = false
+                    },
+                    dialogTitle = "New player"
+                )
+            }
+
+            if (toggleEditPlayerWindow) {
+                EditPlayerWindow(
+                    viewModel = viewModel,
+                    onDismissRequest = { toggleEditPlayerWindow = false },
+                    onConfirmation = {
+                        viewModel.editPlayer(
+                            editIndex, PlayerMatchData(
+                                name = nameInput.ifBlank { "Player ${editIndex + 1}" },
+                                faction = factionInput,
+                                score = scoreInput.ifBlank { "0" },
+                                color = selectedColor?.toArgb()?.toString() ?: Black.toArgb()
+                                    .toString(),
+                                isWinner = playerList[editIndex].isWinner
+                            )
+                        )
+                        toggleEditPlayerWindow = false
+                    },
+                    dialogTitle = "Edit player",
+                )
+            }
+
+            Text(modifier = Modifier.padding(), text = "Game:", fontSize = 22.sp)
+
+            CustomTextField(
+                text = gameQueryInput,
+                onTextChange = { viewModel.changeInput(it, CreateMatchInputFields.GameQuery) },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = ""
+                    )
+                },
+                keyOpt = KeyboardOptions(keyboardType = KeyboardType.Text)
+            )
+            if (toggleSuggestionList) {
+                LazyColumn {
+                    items(suggestionList) {
+                        TextButton(onClick = {
+                            viewModel.changeInput(it, CreateMatchInputFields.GameQuery)
+                            viewModel.toggleSuggestionList(false)
+                            viewModel.setLastGameCLicked(it)
+                            val imm =
+                                context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
+
+                        }) {
+                            Text(text = it, fontSize = 18.sp)
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(22.dp))
-                Text(text = "Players:", fontSize = 22.sp)
-                Spacer(modifier = Modifier.height(22.dp))
-                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Spacer(Modifier.width(20.dp))
-                        Text(text = "Name")
-                        Spacer(modifier = Modifier.width(48.dp))
-                        Text(text = "Color/Faction")
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Score")
-                    }
-                    playerList.forEach {
-                        PlayerMatchDisplay(player = it.name,
-                            colorOrFaction = it.faction,
-                            score = it.score.ifBlank { "0" },
-                            color = Color(it.color.toInt()),
-                            onDeleteClick =
-                            {
-                                editIndex = playerList.indexOf(it)
-                                toggleConfirmDeleteWindow = true
-                            },
-                            onEditClick = {
-                                editIndex = playerList.indexOf(it)
-                                viewModel.changeInput(it.name, CreateMatchInputFields.Name)
-                                viewModel.changeInput(
-                                    it.faction,
-                                    CreateMatchInputFields.ColorOrFaction
-                                )
-                                viewModel.changeInput(it.score, CreateMatchInputFields.Score)
-                                viewModel.changeSelectedColor(Color(it.color.toInt()))
-                                toggleEditPlayerWindow = true
-                            },
-                            onWinnerStarClick = { it.isWinner = !it.isWinner }
-                        )
-                    }
+            }
+            Spacer(modifier = Modifier.height(22.dp))
+            Text(text = "Players:", fontSize = 22.sp)
+            Spacer(modifier = Modifier.height(22.dp))
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(Modifier.width(20.dp))
+                    Text(text = "Name")
+                    Spacer(modifier = Modifier.width(48.dp))
+                    Text(text = "Color/Faction")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "Score")
                 }
-                Spacer(modifier = Modifier.height(36.dp))
-                FilledTonalIconButton(modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .size(36.dp)
-                    .clip(CircleShape), onClick = {
-                    editIndex = playerList.size
-                    toggleNewPlayerWindow = true
-                })
-                {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Icon")
+                playerList.forEach {
+                    PlayerMatchDisplay(player = it.name,
+                        colorOrFaction = it.faction,
+                        score = it.score.ifBlank { "0" },
+                        color = Color(it.color.toInt()),
+                        onDeleteClick =
+                        {
+                            editIndex = playerList.indexOf(it)
+                            toggleConfirmDeleteWindow = true
+                        },
+                        onEditClick = {
+                            editIndex = playerList.indexOf(it)
+                            viewModel.changeInput(it.name, CreateMatchInputFields.Name)
+                            viewModel.changeInput(
+                                it.faction,
+                                CreateMatchInputFields.ColorOrFaction
+                            )
+                            viewModel.changeInput(it.score, CreateMatchInputFields.Score)
+                            viewModel.changeSelectedColor(Color(it.color.toInt()))
+                            toggleEditPlayerWindow = true
+                        },
+                        onWinnerStarClick = { it.isWinner = !it.isWinner }
+                    )
                 }
-                Spacer(modifier = Modifier.height(64.dp))
-                Button(modifier = Modifier.align(Alignment.CenterHorizontally),
-                    onClick = { viewModel.submitMatch() })
-                {
-                    Text(text = "Submit Match")
-                }
+            }
+            Spacer(modifier = Modifier.height(36.dp))
+            FilledTonalIconButton(modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .size(36.dp)
+                .clip(CircleShape), onClick = {
+                editIndex = playerList.size
+                toggleNewPlayerWindow = true
+            })
+            {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Icon")
+            }
+            Spacer(modifier = Modifier.height(64.dp))
+            Button(modifier = Modifier.align(Alignment.CenterHorizontally),
+                onClick = { viewModel.submitMatch() })
+            {
+                Text(text = "Submit Match")
             }
         }
     }
+}
 
 }
 

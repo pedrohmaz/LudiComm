@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ludicomm.data.model.BoardGames
 import com.ludicomm.data.model.Collection
 import com.ludicomm.data.repository.AuthRepository
-import com.ludicomm.data.repository.Repository
+import com.ludicomm.data.repository.BGGRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repo: Repository,
+    private val repo: BGGRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 

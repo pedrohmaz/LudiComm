@@ -7,21 +7,21 @@ import org.simpleframework.xml.Text
 
 @Root(name = "boardgame", strict = false)
 data class BoardGame @JvmOverloads constructor(
-    @param:Attribute(name = "objectid")
-    @get:Attribute(name = "objectid")
-    val objectId: String,
+    @param:Attribute(name = "objectid", required = false)
+    @get:Attribute(name = "objectid", required = false)
+    val objectId: String? = null,
 
-    @param:Element(name = "name")
-    @get:Element(name = "name")
-    val name: Name,
+    @param:Element(name = "name", required = false)
+    @get:Element(name = "name", required = false)
+    val name: Name? = null,
 
     @param:Element(name = "yearpublished", required = false)
     @get:Element(name = "yearpublished", required = false)
     val yearPublished: Int = 0,
 
-    @param:Element(name = "image")
-    @get:Element(name = "image")
-    val thumbnail: String
+    @param:Element(name = "thumbnail", required = false)
+    @get:Element(name = "thumbnail", required = false)
+    val thumbnail: String? = null
 
 ) {
 

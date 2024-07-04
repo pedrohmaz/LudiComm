@@ -1,8 +1,6 @@
 package com.ludicomm.di
 
 
-import android.app.Application
-import android.content.Context
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -11,15 +9,12 @@ import com.ludicomm.data.repository.AuthRepository
 import com.ludicomm.data.repository.implementation.AuthRepositoryImpl
 import com.ludicomm.data.repository.FirestoreRepository
 import com.ludicomm.data.repository.implementation.FirestoreRepositoryImpl
-import com.ludicomm.data.repository.Repository
-import com.ludicomm.data.repository.implementation.RepositoryImpl
+import com.ludicomm.data.repository.BGGRepository
+import com.ludicomm.data.repository.implementation.BGGRepositoryImpl
 import com.ludicomm.data.source.BGGApi
-import com.ludicomm.util.ConnectivityObserver
-import com.ludicomm.util.ConnectivityObserverImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -29,8 +24,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providesBGGAPIRepository(bggApi: BGGApi): Repository {
-        return RepositoryImpl(bggApi)
+    fun providesBGGAPIRepository(bggApi: BGGApi): BGGRepository {
+        return BGGRepositoryImpl(bggApi)
     }
 
     @Provides

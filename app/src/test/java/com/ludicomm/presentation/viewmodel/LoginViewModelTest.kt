@@ -1,4 +1,4 @@
-package com.ludicomm.viewmodel
+package com.ludicomm.presentation.viewmodel
 
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.auth.AuthResult
@@ -68,7 +68,6 @@ class LoginViewModelTest {
             )
         )
         viewModel.loginUser(EMAIL, PASSWORD).join()
-        println(viewModel.logInState.value)
         assertThat(viewModel.logInState.value.isError).isEqualTo(AUTH_ERROR_MESSAGE)
 
     }

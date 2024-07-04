@@ -29,7 +29,7 @@ object RegistrationUtil {
             } else if (username.length !in 3..12) {
                 success = false
                 emit(Resource.Error(USERNAME_RULES_MESSAGE))
-            } else if(email.isBlank()) {
+            } else if (email.isBlank()) {
                 success = false
                 emit(Resource.Error(BLANK_EMAIL_MESSAGE))
             } else if (!password.contains("[A-Z]".toRegex())) {
@@ -55,9 +55,14 @@ object RegistrationUtil {
     private const val INVALID_GAME_MESSAGE = "Please select a valid game"
     private const val NO_PLAYERS_MESSAGE = "Your match must contain at least one player"
 
-    fun validateMatchSubmission(game: String, playerList: MutableList<PlayerMatchData>): Resource<Unit> {
+    fun validateMatchSubmission(
+        game: String,
+        clickedGame: String,
+        inputtedGame: String,
+        playerList: MutableList<PlayerMatchData>
+    ): Resource<Unit> {
         if (game.isBlank()) return Resource.Error(BLANK_GAME_MESSAGE)
-        else if (!mockedGameList.contains(game)) return Resource.Error(INVALID_GAME_MESSAGE)
+        else if (clickedGame != inputtedGame) return Resource.Error(INVALID_GAME_MESSAGE)
         else if (playerList.isEmpty()) return Resource.Error(NO_PLAYERS_MESSAGE)
         return Resource.Success(Unit)
     }

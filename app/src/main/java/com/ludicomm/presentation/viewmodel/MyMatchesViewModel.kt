@@ -22,11 +22,14 @@ class MyMatchesViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _matchList.value =
-                firestoreRepository.getAllUserMatches(authRepository.currentUser()?.displayName.toString())
-            _matchList.value = _matchList.value.sortedByDescending { it.dateAndTime }
+           getAllUserMatches()
         }
     }
 
+    private suspend fun getAllUserMatches()  {
+        _matchList.value =
+            firestoreRepository.getAllUserMatches(authRepository.currentUser()?.displayName.toString())
+        _matchList.value = _matchList.value.sortedByDescending { it.dateAndTime }
+    }
 
 }

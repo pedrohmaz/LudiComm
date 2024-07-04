@@ -1,4 +1,4 @@
-package com.ludicomm.viewmodel
+package com.ludicomm.presentation.viewmodel
 
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.auth.AuthResult
@@ -22,6 +22,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -35,6 +36,8 @@ class SignUpViewModelTest {
         private const val UID = "nid8n7yewd3n819c7ybn78"
         private const val AUTH_ERROR_MESSAGE = "Could not authenticate"
         private const val FIRESTORE_ERROR_MESSAGE = "Firestore Error"
+        private const val PASSWORD_RULES_MESSAGE =
+            "Your password must contain 6-10 characters, at least one upper case and one digit."
     }
 
     private val testDispatcher = StandardTestDispatcher()
@@ -71,7 +74,7 @@ class SignUpViewModelTest {
         coEvery { firestoreRep.registerUser(UID, VALID_USERNAME) } returns flowOf(
             firestoreResultMock
         )
-        every { RegistrationUtil.validateUserRegistration(any(), any(), any()) } returns true
+        coEvery { RegistrationUtil.validateUserRegistration(any(), any(), any(), any()) } returns flowOf(Resource.Success(Unit))
         every { authRep.currentUser() } returns mockk(relaxed = true) {
             every { this@mockk.uid } returns UID
         }
@@ -83,29 +86,15 @@ class SignUpViewModelTest {
 
     @Test
     fun `validateRegistration fail returns error message `() = testScope.runTest {
-        every {
-            RegistrationUtil.validateUserRegistration(
-                VALID_USERNAME,
-                INVALID_PASSWORD,
-                INVALID_PASSWORD
-            )
-        } returns false
         viewModel.changeInput(SignUpInputFields.ConfirmPassword, INVALID_PASSWORD)
         viewModel.registerUser(VALID_USERNAME, EMAIL, INVALID_PASSWORD).join()
-        assertThat(viewModel.signUpState.value.isError).isEqualTo("Validation Error")
+        assertThat(viewModel.signUpState.value.isError).isEqualTo(PASSWORD_RULES_MESSAGE)
     }
 
     @Test
     fun `authRep_registerUser fail returns error message`() = testScope.runTest {
-        every {
-            RegistrationUtil.validateUserRegistration(
-                VALID_USERNAME,
-                VALID_PASSWORD,
-                VALID_PASSWORD
-            )
-        } returns true
         coEvery { authRep.registerUser(VALID_USERNAME, EMAIL, VALID_PASSWORD) } returns flowOf(
-            Resource.Error("Could not authenticate")
+            Resource.Error(AUTH_ERROR_MESSAGE)
         )
         viewModel.changeInput(SignUpInputFields.ConfirmPassword, VALID_PASSWORD)
         viewModel.registerUser(VALID_USERNAME, EMAIL, VALID_PASSWORD).join()
@@ -117,13 +106,6 @@ class SignUpViewModelTest {
     fun `firestoreRep fail returns error message`() = testScope.runTest {
         val authResultMock = mockk<AuthResult>()
 
-        every {
-            RegistrationUtil.validateUserRegistration(
-                VALID_USERNAME,
-                VALID_PASSWORD,
-                VALID_PASSWORD
-            )
-        } returns true
         coEvery { authRep.registerUser(VALID_USERNAME, EMAIL, VALID_PASSWORD) } returns flowOf(
             Resource.Success(
                 authResultMock

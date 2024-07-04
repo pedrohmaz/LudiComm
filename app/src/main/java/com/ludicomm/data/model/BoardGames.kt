@@ -11,9 +11,9 @@ data class BoardGames(
     @get:Attribute(name = "termsofuse")
     val termsOfUseLink: String,
 
-    @param:ElementList(entry = "boardgame", inline = true)
-    @get:ElementList(entry = "boardgame", inline = true)
-    val boardGames: List<BoardGame>
+    @param:ElementList(entry = "boardgame", inline = true, required = false)
+    @get:ElementList(entry = "boardgame", inline = true, required = false)
+    val boardGames: List<BoardGame>? = emptyList()
     )
 
 
