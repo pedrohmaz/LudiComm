@@ -2,6 +2,7 @@ package com.ludicomm.data.source
 
 import com.ludicomm.data.model.BoardGames
 import com.ludicomm.data.model.Collection
+import com.ludicomm.data.model.SingleBoardGameList
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -11,6 +12,9 @@ interface BGGApi {
 
     @GET("search")
     suspend fun getBoardGames(@Query("search") search: String): BoardGames
+
+    @GET("boardgame/{id}")
+    suspend fun getBoardGame(@Path("id") id: String): SingleBoardGameList
 
     @GET("collection/{username}")
     suspend fun getCollection(

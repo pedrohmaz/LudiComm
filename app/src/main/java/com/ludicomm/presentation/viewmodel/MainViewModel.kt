@@ -38,16 +38,16 @@ class MainViewModel @Inject constructor(
         return authRepository.currentUser()?.isEmailVerified
     }
 
-    private fun searchGames(name: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            //try {
-            val result = repo.getBoardGames(name)
-            _boardGames.value = result
-            // } catch (e: Exception) {
-            // _boardGames.value =  BoardGames()
-            // }
-        }
-    }
+//    private fun searchGames(name: String) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            //try {
+//            val result = repo.getBoardGames(name)
+//            _boardGames.value = result
+//            // } catch (e: Exception) {
+//            // _boardGames.value =  BoardGames()
+//            // }
+//        }
+//    }
 
     private fun searchCollection(name: String) {
         viewModelScope.launch(Dispatchers.IO) {

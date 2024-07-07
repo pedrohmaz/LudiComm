@@ -6,15 +6,22 @@ import org.simpleframework.xml.ElementList
 import org.simpleframework.xml.Root
 import org.simpleframework.xml.Text
 
+@Root(name = "boardgames", strict = false)
+data class SingleBoardGameList(
+    @param:Attribute(name = "termsofuse")
+    @get:Attribute(name = "termsofuse")
+    val termsOfUseLink: String,
+
+    @param:ElementList(entry = "boardgame", inline = true, required = false)
+    @get:ElementList(entry = "boardgame", inline = true, required = false)
+    val boardGames: List<SingleBoardGame>? = emptyList()
+)
+
 @Root(name = "boardgame", strict = false)
-data class BoardGame @JvmOverloads constructor(
+data class SingleBoardGame @JvmOverloads constructor(
     @param:Attribute(name = "objectid", required = false)
     @get:Attribute(name = "objectid", required = false)
     var objectId: String? = "",
-
-    @param:Element(name = "name", required = false)
-    @get:Element(name = "name", required = false)
-    val name: Name? = null,
 
     @param:Element(name = "yearpublished", required = false)
     @get:Element(name = "yearpublished", required = false)
@@ -24,9 +31,9 @@ data class BoardGame @JvmOverloads constructor(
     @get:Element(name = "thumbnail", required = false)
     val thumbnail: String? = null,
 
-//    @param:ElementList(inline = true, entry = "name", required = false)
-//    @get:ElementList(inline = true, entry = "name", required = false)
-//    var names: List<Name>? = null,
+    @param:ElementList(inline = true, entry = "name", required = false)
+    @get:ElementList(inline = true, entry = "name", required = false)
+    var names: List<Name>? = null,
 
     ) {
 
@@ -42,6 +49,9 @@ data class BoardGame @JvmOverloads constructor(
     )
 
 }
+
+
+
 
 
 

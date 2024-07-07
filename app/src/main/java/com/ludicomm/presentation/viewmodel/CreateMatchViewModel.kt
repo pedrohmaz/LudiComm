@@ -1,8 +1,10 @@
 package com.ludicomm.presentation.viewmodel
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ludicomm.data.model.BoardGame
 import com.ludicomm.data.model.BoardGames
 import com.ludicomm.data.model.Match
 import com.ludicomm.data.model.PlayerMatchData
@@ -14,6 +16,7 @@ import com.ludicomm.util.stateHandlers.CreateMatchState
 import com.ludicomm.util.stateHandlers.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,7 +33,7 @@ class CreateMatchViewModel @Inject constructor(
     private val _state = MutableStateFlow(CreateMatchState())
     val state = _state.asStateFlow()
 
-    private val _suggestionList = MutableStateFlow<MutableList<String>>(mutableListOf())
+    private val _suggestionList = MutableStateFlow<List<List<String>>>(listOf())
     val suggestionList = _suggestionList.asStateFlow()
 
     private val _playerList = MutableStateFlow<MutableList<PlayerMatchData>>(mutableListOf())
@@ -38,6 +41,9 @@ class CreateMatchViewModel @Inject constructor(
 
     private val _gameQueryInput = MutableStateFlow("")
     val gameQueryInput = _gameQueryInput.asStateFlow()
+
+    private val _gameThumbnail = MutableStateFlow("")
+    val gameThumbnail = _gameThumbnail.asStateFlow()
 
     private val _nameInput = MutableStateFlow("")
     val nameInput = _nameInput.asStateFlow()
@@ -74,6 +80,10 @@ class CreateMatchViewModel @Inject constructor(
 
     fun changeSelectedColor(color: Color) {
         _selectedColor.value = color
+    }
+
+    fun changeGameThumbnail(uri: String){
+       _gameThumbnail.value = uri
     }
 
     fun clearInputs() {
@@ -128,26 +138,42 @@ class CreateMatchViewModel @Inject constructor(
             delay(1000)
             if (_gameQueryInput.value.isNotBlank() && _gameQueryInput.value.length > 1 && _gameQueryInput.value != lastGameCLicked) {
                 _toggleSuggestionList.value = true
-                val bgList: BoardGames = try {
-                    bggRepository.getBoardGames(_gameQueryInput.value)
-                } catch (e: Exception) {
-                    BoardGames("")
-                }
-                val newList = mutableListOf<String>()
-                bgList.boardGames?.forEach {
-                    it.name?.name?.let { it1 ->
-                        newList.add(
-                            it1
-                        )
+                bggRepository.getBoardGames(_gameQueryInput.value).collect { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            val newList = mutableListOf<List<String>>()
+                            var counter = 0
+                            result.data?.boardGames?.forEach { boardGame ->
+                                var thumb = ""
+                                if (counter < 24) {
+                                    val bgDeferred =
+                                        async { bggRepository.getBoardGame(boardGame.objectId.toString()) }
+                                    thumb =
+                                        bgDeferred.await().boardGames?.get(0)?.thumbnail ?: ""
+                                    listOf((boardGame.name?.name ?: ""), thumb).let { list ->
+                                        newList.add(list)
+                                    }
+                                    counter++
+                                }
+                            }
+                            _suggestionList.value = newList
+                            _state.value = CreateMatchState(isSuccess = result.message.toString())
+                        }
+
+                        is Resource.Error -> {
+                            _suggestionList.value = mutableListOf()
+                            _toggleSuggestionList.value = false
+                            _state.value = CreateMatchState(isError = result.message.toString())
+                        }
+
+                        is Resource.Loading -> _state.value =
+                            CreateMatchState(isLoading = true)
                     }
                 }
-                _suggestionList.value = newList
-            } else {
-                _suggestionList.value = mutableListOf()
-                _toggleSuggestionList.value = false
             }
         }
     }
+
 
     fun resetState() {
         _state.value = CreateMatchState()
@@ -212,7 +238,6 @@ class CreateMatchViewModel @Inject constructor(
                 when (firestoreResult) {
                     is Resource.Error -> _state.value =
                         CreateMatchState(isError = firestoreResult.message.toString())
-
                     is Resource.Loading -> {}
                     is Resource.Success -> _state.value =
                         CreateMatchState(isSuccess = "Match submitted successfully")
