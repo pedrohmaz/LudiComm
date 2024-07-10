@@ -10,11 +10,11 @@ import retrofit2.http.Query
 
 interface BGGApi {
 
-    @GET("search")
-    suspend fun getBoardGames(@Query("search") search: String): BoardGames
+    @GET("search&type=boardgame")
+    suspend fun getBoardGames(@Query("query") query: String): BoardGames
 
-    @GET("boardgame/{id}")
-    suspend fun getBoardGame(@Path("id") id: String): SingleBoardGameList
+    @GET("thing?")
+    suspend fun getBoardGame(@Query("id") id: String): SingleBoardGameList
 
     @GET("collection/{username}")
     suspend fun getCollection(

@@ -4,8 +4,6 @@ import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ludicomm.data.model.BoardGame
-import com.ludicomm.data.model.BoardGames
 import com.ludicomm.data.model.Match
 import com.ludicomm.data.model.PlayerMatchData
 import com.ludicomm.data.repository.BGGRepository
@@ -16,7 +14,6 @@ import com.ludicomm.util.stateHandlers.CreateMatchState
 import com.ludicomm.util.stateHandlers.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,6 +62,8 @@ class CreateMatchViewModel @Inject constructor(
 
     private var lastGameCLicked = ""
 
+    private var onGoingQuery = false
+
     fun setLastGameCLicked(string: String) {
         lastGameCLicked = string
     }
@@ -82,8 +81,8 @@ class CreateMatchViewModel @Inject constructor(
         _selectedColor.value = color
     }
 
-    fun changeGameThumbnail(uri: String){
-       _gameThumbnail.value = uri
+    fun changeGameThumbnail(uri: String) {
+        _gameThumbnail.value = uri
     }
 
     fun clearInputs() {
@@ -113,6 +112,10 @@ class CreateMatchViewModel @Inject constructor(
         _toggleNoWinnerDialog.value = value
     }
 
+    fun toggleOnGoingQuery(state: Boolean){
+        onGoingQuery = state
+    }
+
 //    fun createSuggestions() {
 //        if (_gameQueryInput.value.isNotBlank()) {
 //            _toggleSuggestionList.value = true
@@ -135,43 +138,55 @@ class CreateMatchViewModel @Inject constructor(
 
     fun createBGGSuggestions() {
         viewModelScope.launch {
-            delay(1000)
-            if (_gameQueryInput.value.isNotBlank() && _gameQueryInput.value.length > 1 && _gameQueryInput.value != lastGameCLicked) {
+            delay(800)
+            if (_gameQueryInput.value.isNotBlank() && _gameQueryInput.value.length > 2
+                && _gameQueryInput.value != lastGameCLicked && !onGoingQuery
+            ) {
+                onGoingQuery = true
                 _toggleSuggestionList.value = true
                 bggRepository.getBoardGames(_gameQueryInput.value).collect { result ->
                     when (result) {
                         is Resource.Success -> {
+
+                            val gameList = mutableListOf<List<String>>()
                             val newList = mutableListOf<List<String>>()
                             var counter = 0
                             result.data?.boardGames?.forEach { boardGame ->
-                                var thumb = ""
-                                if (counter < 24) {
-                                    val bgDeferred =
-                                        async { bggRepository.getBoardGame(boardGame.objectId.toString()) }
-                                    thumb =
-                                        bgDeferred.await().boardGames?.get(0)?.thumbnail ?: ""
-                                    listOf((boardGame.name?.name ?: ""), thumb).let { list ->
-                                        newList.add(list)
+                                    boardGame.name?.value?.let { value ->
+                                        gameList.add(listOf(value, boardGame.id ?: ""))
                                     }
-                                    counter++
                                 }
+                            gameList.sortBy { it[0].length }
+                            val sortedGameList = gameList.take(10)
+                            sortedGameList.forEach { listItem ->
+                                    val uri =
+                                        bggRepository.getBoardGame(listItem[1]).boardGames?.get(0)?.thumbnail
+                                            ?: ""
+                                    newList.add(listOf(listItem[0], uri))
+                                    _suggestionList.value = newList
                             }
-                            _suggestionList.value = newList
-                            _state.value = CreateMatchState(isSuccess = result.message.toString())
+                            _state.value =
+                                CreateMatchState(isSuccess = result.message.toString())
+                            onGoingQuery = false
                         }
 
                         is Resource.Error -> {
                             _suggestionList.value = mutableListOf()
                             _toggleSuggestionList.value = false
                             _state.value = CreateMatchState(isError = result.message.toString())
+                            onGoingQuery = false
                         }
 
                         is Resource.Loading -> _state.value =
                             CreateMatchState(isLoading = true)
                     }
                 }
+            } else {
+                _suggestionList.value = emptyList()
+                onGoingQuery = false
             }
         }
+
     }
 
 
@@ -238,6 +253,7 @@ class CreateMatchViewModel @Inject constructor(
                 when (firestoreResult) {
                     is Resource.Error -> _state.value =
                         CreateMatchState(isError = firestoreResult.message.toString())
+
                     is Resource.Loading -> {}
                     is Resource.Success -> _state.value =
                         CreateMatchState(isSuccess = "Match submitted successfully")

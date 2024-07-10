@@ -18,7 +18,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val BGG_BASE_URL = "https://boardgamegeek.com/xmlapi/"
+    private const val BGG_BASE_URL = "https://boardgamegeek.com/xmlapi2/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

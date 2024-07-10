@@ -1,9 +1,9 @@
 package com.ludicomm.data.repository.implementation
 
-import com.ludicomm.data.model.BoardGame
 import com.ludicomm.data.source.BGGApi
 import com.ludicomm.data.model.BoardGames
 import com.ludicomm.data.model.Collection
+import com.ludicomm.data.model.SingleBoardGame
 import com.ludicomm.data.model.SingleBoardGameList
 import com.ludicomm.data.repository.BGGRepository
 import com.ludicomm.util.stateHandlers.Resource
@@ -15,11 +15,11 @@ class BGGRepositoryImpl(
     private val bggApi: BGGApi
 ) : BGGRepository {
 
-    override suspend fun getBoardGames(name: String): Flow<Resource<BoardGames>> {
+    override suspend fun getBoardGames(search: String): Flow<Resource<BoardGames>> {
         return try {
             flow {
                 emit(Resource.Loading())
-                val result = bggApi.getBoardGames(name)
+                val result = bggApi.getBoardGames(search)
                 emit(Resource.Success(result))
             }
         } catch (e: Exception) {
@@ -33,6 +33,10 @@ class BGGRepositoryImpl(
     }
 
     override suspend fun getBoardGame(id: String): SingleBoardGameList {
-        return bggApi.getBoardGame(id)
+        return try {
+            bggApi.getBoardGame(id)
+        } catch (e: Exception){
+            SingleBoardGameList("", boardGames = listOf(SingleBoardGame()))
+        }
     }
 }

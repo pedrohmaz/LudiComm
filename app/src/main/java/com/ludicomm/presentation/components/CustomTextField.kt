@@ -15,18 +15,22 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun CustomTextField(
+    modifier: Modifier = Modifier,
     text: String,
     onTextChange: (String) -> Unit,
     label: String = "",
     keyOpt: KeyboardOptions = KeyboardOptions.Default,
+    leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon:  @Composable (() -> Unit)? = null
 ) {
     OutlinedTextField(
+        modifier = modifier,
         value = text,
         label = { Text(text = label) },
         keyboardOptions = keyOpt,
         onValueChange = {newText: String -> onTextChange(newText) },
         singleLine = true,
+        leadingIcon = leadingIcon,
         trailingIcon = trailingIcon
     )
 }

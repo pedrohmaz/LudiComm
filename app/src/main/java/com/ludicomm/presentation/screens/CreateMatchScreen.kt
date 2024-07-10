@@ -1,15 +1,14 @@
 package com.ludicomm.presentation.screens
 
-import android.content.Context
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,6 +24,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -33,6 +33,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -56,7 +57,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -64,6 +67,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.ludicomm.R
 import com.ludicomm.data.model.PlayerMatchData
 import com.ludicomm.presentation.components.CustomTextField
 import com.ludicomm.presentation.components.EditPlayerWindow
@@ -126,7 +130,7 @@ fun CreateMatchScreen(
         }
     }
 
-    Surface() {
+    Surface {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -247,6 +251,9 @@ fun CreateMatchScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     CustomTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
                         text = gameQueryInput,
                         onTextChange = {
                             viewModel.changeInput(
@@ -254,11 +261,24 @@ fun CreateMatchScreen(
                                 CreateMatchInputFields.GameQuery
                             )
                         },
-                        trailingIcon = {
+                        leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = ""
                             )
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = {
+                                viewModel.changeInput(
+                                    "",
+                                    CreateMatchInputFields.GameQuery
+                                )
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Clear game query"
+                                )
+                            }
                         },
                         keyOpt = KeyboardOptions(keyboardType = KeyboardType.Text)
                     )
@@ -343,25 +363,31 @@ fun CreateMatchScreen(
                         .background(White)
                 ) {
                     items(suggestionList) {
-                        Card(modifier = Modifier.fillMaxWidth(), border = BorderStroke(0.5.dp, Black), onClick = {
-                            viewModel.changeInput(it[0], CreateMatchInputFields.GameQuery)
-                            viewModel.toggleSuggestionList(false)
-                            viewModel.setLastGameCLicked(it[0])
-                            viewModel.changeGameThumbnail(it[1])
-                            val imm =
-                                context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
-                        }) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(width = 0.5.dp, color = Black, shape = RectangleShape)
+                                .clickable {
+                                    viewModel.changeInput(it[0], CreateMatchInputFields.GameQuery)
+                                    viewModel.toggleOnGoingQuery(false)
+                                    viewModel.toggleSuggestionList(false)
+                                    viewModel.setLastGameCLicked(it[0])
+                                    viewModel.changeGameThumbnail(it[1])
+                                }) {
                             Row {
                                 AsyncImage(
                                     model = ImageRequest.Builder(context)
                                         .data(it[1])
                                         .crossfade(true)
-                                        .build(), contentDescription = "thumbnail"
+                                        .error(R.drawable.no_image)
+                                        .build(), contentDescription = "thumbnail",
+                                    modifier = Modifier.size(80.dp)
                                 )
-                                TextButton(onClick = {}) {
-                                    Text(text = it[0], fontSize = 18.sp)
-                                }
+                                Text(
+                                    modifier = Modifier.fillMaxHeight(),
+                                    text = it[0],
+                                    fontSize = 18.sp
+                                )
                             }
                         }
                     }
@@ -371,6 +397,8 @@ fun CreateMatchScreen(
     }
 
 }
+
+
 
 
 
