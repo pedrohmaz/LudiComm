@@ -13,9 +13,19 @@ const val SIGNUP = "signup"
 const val MAIN = "main"
 const val CREATE_MATCH = "create_match"
 const val MY_MATCHES = "my_matches"
+const val MY_STATS = "my_stats"
+
 
 @Composable
 fun Navigator(navController: NavHostController = rememberNavController(), authRepository: AuthRepository) {
+
+    val navRoutes = mapOf(LOGIN to {navController.navigate(LOGIN)},
+        SIGNUP to {navController.navigate(SIGNUP)},
+        MAIN to {navController.navigate(MAIN)},
+        CREATE_MATCH to {navController.navigate(CREATE_MATCH)},
+        MY_MATCHES to {navController.navigate(MY_MATCHES)},
+        MY_STATS to {navController.navigate(MY_STATS)}
+        )
 
     NavHost(navController = navController, startDestination = LOGIN) {
         composable(LOGIN) {
@@ -32,18 +42,15 @@ fun Navigator(navController: NavHostController = rememberNavController(), authRe
         composable(MAIN) {
             AuthGuard(authRepository, navHostController = navController) {
                 MainScreen(
-                    onNavigateToCreateMatch = { navController.navigate(CREATE_MATCH) },
-                    onNavigateToLogin = { navController.navigate(LOGIN) },
-                    onNavigateToMyMatches = {navController.navigate(MY_MATCHES)},
-                    onNavigateToMyStats = {}
+                 navRoutes = navRoutes
                 )
             }
         }
         composable(CREATE_MATCH){
             AuthGuard(authRepository = authRepository, navHostController = navController) {
-                CreateMatchScreen {
-                    navController.navigate(MAIN)
-                }
+                CreateMatchScreen (
+                    navRoutes = navRoutes
+                )
             }
         }
         composable(MY_MATCHES){

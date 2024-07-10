@@ -116,26 +116,6 @@ class CreateMatchViewModel @Inject constructor(
         onGoingQuery = state
     }
 
-//    fun createSuggestions() {
-//        if (_gameQueryInput.value.isNotBlank()) {
-//            _toggleSuggestionList.value = true
-//            if (_suggestionList.value.contains(_gameQueryInput.value)) _toggleSuggestionList.value =
-//                false
-//            else {
-//                _suggestionList.value = emptyList()
-//                _suggestionList.value = mockedGameList.filter {
-//                    it.contains(
-//                        _gameQueryInput.value,
-//                        ignoreCase = true
-//                    )
-//                }
-//            }
-//        } else {
-//            _suggestionList.value = emptyList()
-//            _toggleSuggestionList.value = false
-//        }
-//    }
-
     fun createBGGSuggestions() {
         viewModelScope.launch {
             delay(800)
