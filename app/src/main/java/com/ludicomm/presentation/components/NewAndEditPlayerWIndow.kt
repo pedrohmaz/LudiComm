@@ -23,6 +23,8 @@ import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -81,6 +83,7 @@ fun EditPlayerWindow(
 
             OutlinedTextField(
                 value = colorOrFactionInput,
+                textStyle = TextStyle(fontWeight = Bold),
                 onValueChange = {
                     viewModel.changeInput(
                         it,

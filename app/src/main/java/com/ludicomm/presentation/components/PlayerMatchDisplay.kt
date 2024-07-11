@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ludicomm.presentation.theme.YellowPlayer
@@ -69,6 +70,7 @@ fun PlayerMatchDisplay(
             modifier = Modifier.width(108.dp),
             text = colorOrFaction,
             fontSize = 18.sp,
+            fontWeight = Bold,
             color = color
         )
         Spacer(modifier = Modifier.width(16.dp))

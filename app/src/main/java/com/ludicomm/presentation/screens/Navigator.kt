@@ -19,7 +19,8 @@ const val MY_STATS = "my_stats"
 @Composable
 fun Navigator(navController: NavHostController = rememberNavController(), authRepository: AuthRepository) {
 
-    val navRoutes = mapOf(LOGIN to {navController.navigate(LOGIN)},
+    val navRoutes = mapOf(
+        LOGIN to {navController.navigate(LOGIN)},
         SIGNUP to {navController.navigate(SIGNUP)},
         MAIN to {navController.navigate(MAIN)},
         CREATE_MATCH to {navController.navigate(CREATE_MATCH)},
@@ -55,7 +56,14 @@ fun Navigator(navController: NavHostController = rememberNavController(), authRe
         }
         composable(MY_MATCHES){
             AuthGuard(authRepository = authRepository, navHostController = navController) {
-                MyMatchesScreen()
+                MyMatchesScreen(
+                    navRoutes = navRoutes
+                )
+            }
+        }
+        composable(MY_STATS){
+            AuthGuard(authRepository = authRepository, navHostController = navController) {
+                //MyStatsScreen()
             }
         }
     }

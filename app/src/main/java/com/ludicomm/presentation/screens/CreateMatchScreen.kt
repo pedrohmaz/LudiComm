@@ -139,12 +139,15 @@ fun CreateMatchScreen(
     Surface {
         CustomNavigationDrawer(
             drawerState = drawerState,
-            onClick1 = { navRoutes[CREATE_MATCH]?.invoke() },
-            onClick2 = { navRoutes[MY_MATCHES]?.invoke() },
-            onClick3 = { }) {
+            onClickMain = { navRoutes[MAIN]?.invoke() },
+            onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
+            onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
+            onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
+            onClickSignOut = { navRoutes[LOGIN] })
+        {
             Scaffold(
                 topBar = {
-                    TopAppBar(title = { Text(text = "Ludicomm") }, navigationIcon = {
+                    TopAppBar(title = { Text(text = "Create Match") }, navigationIcon = {
                         IconButton(
                             onClick = {
                                 scope.launch {
@@ -276,7 +279,7 @@ fun CreateMatchScreen(
                     ) {
                         CustomTextField(
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .width(330.dp)
                                 .padding(8.dp),
                             text = gameQueryInput,
                             onTextChange = {
