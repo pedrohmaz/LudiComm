@@ -60,7 +60,7 @@ fun MainScreen(
             onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
             onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
             onClickMyStats = {navRoutes[MY_STATS]?.invoke()},
-            onClickSignOut = { navRoutes[LOGIN]})
+            onClickSignOut = { navRoutes[LOGIN]?.invoke()})
         {
             Scaffold(
                 topBar = {
@@ -129,7 +129,7 @@ fun MainScreen(
                             Text(text = "My matches")
                         }
 
-                        Button(onClick = {  }) {
+                        Button(onClick = { navRoutes[MY_STATS]?.invoke() }) {
                             Text(text = "My stats")
                         }
 

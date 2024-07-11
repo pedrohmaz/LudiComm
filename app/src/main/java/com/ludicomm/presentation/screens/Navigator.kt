@@ -63,7 +63,9 @@ fun Navigator(navController: NavHostController = rememberNavController(), authRe
         }
         composable(MY_STATS){
             AuthGuard(authRepository = authRepository, navHostController = navController) {
-                //MyStatsScreen()
+                MyStatsScreen(
+                    navRoutes = navRoutes
+                )
             }
         }
     }
