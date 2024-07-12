@@ -1,6 +1,5 @@
 package com.ludicomm.presentation.viewmodel
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -172,6 +171,13 @@ class CreateMatchViewModel @Inject constructor(
 
     fun resetState() {
         _state.value = CreateMatchState()
+    }
+
+    fun updatePlayerList(){
+        val copyList = mutableListOf<PlayerMatchData>()
+        copyList.addAll(_playerList.value)
+        _playerList.value.clear()
+        _playerList.value = copyList
     }
 
     fun submitMatch() {

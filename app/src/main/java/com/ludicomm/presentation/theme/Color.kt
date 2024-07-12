@@ -24,3 +24,5 @@ val WhitePlayer = Color(0xFFA3A3A3)
 val GreyPlayer = Color(0xFF898991)
 val PinkPlayer = Color(0xFFD260D6)
 val BlackPlayer = Color(0xFF000000)
+
+val DeactivatedGrey = Color(0xFFDAD2D2)

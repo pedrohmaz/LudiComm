@@ -318,7 +318,7 @@ fun CreateMatchScreen(
                     if (gameThumbnail.isNotBlank()) {
                         AsyncImage(
                             modifier = Modifier
-                                .background(Green),
+                                .padding(horizontal = 32.dp, vertical = 20.dp).scale(1.8f),
                             model = ImageRequest.Builder(context).data(gameThumbnail).build(),
                             contentDescription = "Selected game thumbnail"
                         )
@@ -332,18 +332,20 @@ fun CreateMatchScreen(
                     ) {
                         Row(
                             Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            //horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Spacer(Modifier.width(20.dp))
-                            Text(text = "Name")
-                            Spacer(modifier = Modifier.width(48.dp))
-                            Text(text = "Color/Faction")
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = "Score")
+                            Spacer(modifier = Modifier.weight(16f))
+                            Text(modifier = Modifier.weight(27.5f), text = "Name")
+                         //   Spacer(modifier = Modifier.weight(48.dp))
+                            Text(modifier = Modifier.weight(32f), text = "Color/Faction")
+                           // Spacer(modifier = Modifier.weight(8.dp))
+                            Text(modifier = Modifier.weight(14f), text = "Score")
+                            Spacer(modifier = Modifier.weight(20f))
                         }
                         playerList.forEach {
-                            PlayerMatchDisplay(player = it.name,
+                            PlayerMatchDisplay(
+                                player = it.name,
                                 colorOrFaction = it.faction,
                                 score = it.score.ifBlank { "0" },
                                 color = Color(it.color.toInt()),
@@ -363,7 +365,11 @@ fun CreateMatchScreen(
                                     viewModel.changeSelectedColor(Color(it.color.toInt()))
                                     toggleEditPlayerWindow = true
                                 },
-                                onWinnerStarClick = { it.isWinner = !it.isWinner }
+                                onWinnerStarClick = {
+                                    it.isWinner = !it.isWinner
+                                    viewModel.updatePlayerList()   //horrible solution for triggering recomposition :(
+                                },
+                                winnerIcon = it.isWinner
                             )
                         }
                     }
