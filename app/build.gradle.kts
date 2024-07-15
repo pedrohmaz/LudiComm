@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.ludicomm"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -118,11 +118,13 @@ dependencies {
 
     //Firebase
     // https://firebase.google.com/docs/android/setup#available-libraries
-    implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth:23.0.0")
     implementation("com.google.firebase:firebase-storage")
 
+    //YCharts
+    implementation ("co.yml:ycharts:2.1.0")
 
 }
 

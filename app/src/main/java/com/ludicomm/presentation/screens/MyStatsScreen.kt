@@ -6,8 +6,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Star
@@ -22,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,9 +36,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import co.yml.charts.common.components.Legends
+import co.yml.charts.common.model.LegendsConfig
+import co.yml.charts.common.utils.DataUtils
+import co.yml.charts.ui.piechart.charts.PieChart
 import com.ludicomm.presentation.components.CustomNavigationDrawer
 import com.ludicomm.presentation.theme.GreyPlayer
 import com.ludicomm.presentation.theme.OrangePlayer
@@ -52,6 +64,9 @@ fun MyStatsScreen(
     val totalWins by viewModel.totalWins.collectAsState()
     val gamesMostPlayed by viewModel.gamesMostPlayed.collectAsState()
     val playersMostPlayed by viewModel.playersMostPlayed.collectAsState()
+
+    val pieChartData by viewModel.pieChartData.collectAsState()
+    val pieChartConfig by viewModel.pieChartConfig.collectAsState()
 
     Surface {
         CustomNavigationDrawer(
@@ -102,46 +117,107 @@ fun MyStatsScreen(
                         Text(text = "Total matches played: $totalMatches", fontSize = 20.sp)
                         Text(text = "Total matches won: $totalWins", fontSize = 20.sp)
 
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)){
+                        Row(
+                            Modifier.fillMaxWidth().height(155.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            PieChart(
+                                modifier = Modifier.size(150.dp),
+                                pieChartData = pieChartData,
+                                pieChartConfig = pieChartConfig
+                            )
+                            VerticalDivider()
+                            Legends(
+                                legendsConfig = DataUtils.getLegendsConfigFromPieChartData(
+                                    pieChartData,
+                                    1
+                                )
+                            )
+
+                        }
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(
                                 text = "Game most played:",
                                 fontSize = 20.sp
                             )
-                            Row(){
-                                Icon(imageVector = Icons.Default.Star, tint = YellowPlayer, contentDescription = "Star Icon")
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    tint = YellowPlayer,
+                                    contentDescription = "Star Icon"
+                                )
                                 Spacer(modifier = Modifier.width(16.dp))
-                                Text(text = "${gamesMostPlayed[0].first} (${gamesMostPlayed[0].second} times)")
+                                Text(
+                                    text = if (gamesMostPlayed[0].second == 0) "No game"
+                                    else "${gamesMostPlayed[0].first} (${gamesMostPlayed[0].second} times)"
+                                )
                             }
-                            Row{
-                                Icon(imageVector = Icons.Default.Star, tint = GreyPlayer, contentDescription = "Star Icon")
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    tint = GreyPlayer,
+                                    contentDescription = "Star Icon"
+                                )
                                 Spacer(modifier = Modifier.width(16.dp))
-                                Text(text = "${gamesMostPlayed[1].first} (${gamesMostPlayed[1].second} times)")
+                                Text(
+                                    text = if (gamesMostPlayed[1].second == 0) "No game"
+                                    else "${gamesMostPlayed[1].first} (${gamesMostPlayed[1].second} times)"
+                                )
                             }
-                            Row{
-                                Icon(imageVector = Icons.Default.Star, tint = OrangePlayer, contentDescription = "Star Icon")
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    tint = OrangePlayer,
+                                    contentDescription = "Star Icon"
+                                )
                                 Spacer(modifier = Modifier.width(16.dp))
-                                Text(text = "${gamesMostPlayed[2].first} (${gamesMostPlayed[2].second} times)")
+                                Text(
+                                    text = if (gamesMostPlayed[2].second == 0) "No game"
+                                    else "${gamesMostPlayed[2].first} (${gamesMostPlayed[2].second} times)"
+                                )
                             }
                         }
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)){
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(
                                 text = "Players most played with:",
                                 fontSize = 20.sp
                             )
-                            Row(){
-                                Icon(imageVector = Icons.Default.Star, tint = YellowPlayer, contentDescription = "Star Icon")
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    tint = YellowPlayer,
+                                    contentDescription = "Star Icon"
+                                )
                                 Spacer(modifier = Modifier.width(16.dp))
-                                Text(text = "${playersMostPlayed[0].first} (${playersMostPlayed[0].second} times)")
+                                Text(
+                                    text = if (playersMostPlayed[0].second == 0) "No player"
+                                    else "${playersMostPlayed[0].first} (${playersMostPlayed[0].second} times)"
+                                )
                             }
-                            Row{
-                                Icon(imageVector = Icons.Default.Star, tint = GreyPlayer, contentDescription = "Star Icon")
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    tint = GreyPlayer,
+                                    contentDescription = "Star Icon"
+                                )
                                 Spacer(modifier = Modifier.width(16.dp))
-                                Text(text = "${playersMostPlayed[1].first} (${playersMostPlayed[1].second} times)")
+                                Text(
+                                    text = if (playersMostPlayed[1].second == 0) "No player"
+                                    else "${playersMostPlayed[1].first} (${playersMostPlayed[1].second} times)"
+                                )
                             }
-                            Row{
-                                Icon(imageVector = Icons.Default.Star, tint = OrangePlayer, contentDescription = "Star Icon")
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    tint = OrangePlayer,
+                                    contentDescription = "Star Icon"
+                                )
                                 Spacer(modifier = Modifier.width(16.dp))
-                                Text(text = "${playersMostPlayed[2].first} (${playersMostPlayed[2].second} times)")
+                                Text(
+                                    text = if (playersMostPlayed[2].second == 0) "No player"
+                                    else "${playersMostPlayed[2].first} (${playersMostPlayed[2].second} times)"
+                                )
                             }
                         }
 

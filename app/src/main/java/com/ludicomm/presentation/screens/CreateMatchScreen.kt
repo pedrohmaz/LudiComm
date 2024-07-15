@@ -1,5 +1,6 @@
 package com.ludicomm.presentation.screens
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -58,7 +59,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
@@ -234,10 +234,18 @@ fun CreateMatchScreen(
                             viewModel = viewModel,
                             onDismissRequest = { toggleNewPlayerWindow = false },
                             onConfirmation = {
+                                var updatedName = nameInput
+                                var updatedFaction = factionInput
+                                while (updatedName.isNotEmpty() && updatedName.last().isWhitespace()) {
+                                    updatedName = updatedName.dropLast(1)
+                                }
+                                while (updatedFaction.isNotEmpty() && updatedFaction.last().isWhitespace()) {
+                                    updatedFaction = updatedFaction.dropLast(1)
+                                }
                                 viewModel.addPlayer(
                                     PlayerMatchData(
-                                        name = nameInput.ifBlank { "Player ${editIndex + 1}" },
-                                        faction = factionInput,
+                                        name = updatedName.ifEmpty { "Player ${editIndex + 1}" },
+                                        faction = updatedFaction,
                                         score = scoreInput.ifBlank { "0" },
                                         color = selectedColor?.toArgb()?.toString()
                                             ?: Black.toArgb()
@@ -318,7 +326,8 @@ fun CreateMatchScreen(
                     if (gameThumbnail.isNotBlank()) {
                         AsyncImage(
                             modifier = Modifier
-                                .padding(horizontal = 32.dp, vertical = 20.dp).scale(1.8f),
+                                .padding(horizontal = 32.dp, vertical = 20.dp)
+                                .scale(1.8f),
                             model = ImageRequest.Builder(context).data(gameThumbnail).build(),
                             contentDescription = "Selected game thumbnail"
                         )

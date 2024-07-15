@@ -1,11 +1,23 @@
 package com.ludicomm.presentation.viewmodel
 
 import android.util.Log
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.yml.charts.common.extensions.formatToSinglePrecision
+import co.yml.charts.common.model.PlotType
+import co.yml.charts.ui.piechart.models.PieChartConfig
+import co.yml.charts.ui.piechart.models.PieChartData
 import com.ludicomm.data.model.Match
 import com.ludicomm.data.repository.AuthRepository
 import com.ludicomm.data.repository.FirestoreRepository
+import com.ludicomm.presentation.theme.DarkBluePlayer
+import com.ludicomm.presentation.theme.LightGreenPlayer
+import com.ludicomm.presentation.theme.RedPlayer
+import com.ludicomm.presentation.theme.YellowPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,13 +45,46 @@ class MyStatsViewModel @Inject constructor(
     private val _playersMostPlayed = MutableStateFlow<List<Pair<String, Int>>>(listOf())
     val playersMostPlayed = _playersMostPlayed.asStateFlow()
 
+    private val _pieChartData = MutableStateFlow(
+        PieChartData(
+            slices = listOf(),
+            plotType = PlotType.Pie
+        )
+    )
+    val pieChartData = _pieChartData.asStateFlow()
+
+    private val _pieChartConfig = MutableStateFlow(
+        PieChartConfig(
+            backgroundColor = Color.Transparent,
+            showSliceLabels = false,
+            isAnimationEnable = true,
+            animationDuration = 1300,
+        )
+    )
+    val pieChartConfig = _pieChartConfig.asStateFlow()
+
 
     val user = authRepository.currentUser()?.displayName.toString()
+
 
     init {
         viewModelScope.launch {
             getAllUserMatches()
             computeStats()
+            _pieChartData.value = PieChartData(
+                listOf(
+                    PieChartData.Slice(
+                        "Wins: ${(_totalWins.value * 100f / _totalMatches.value).formatToSinglePrecision()}%",
+                        _totalWins.value.toFloat(),
+                        RedPlayer
+                    ),
+                    PieChartData.Slice(
+                        "Losses: ${((_totalMatches.value - _totalWins.value) * 100f / _totalMatches.value).formatToSinglePrecision()}%",
+                        (_totalMatches.value - _totalWins.value).toFloat(), DarkBluePlayer
+                    )
+                ),
+                plotType = PlotType.Pie
+            )
         }
     }
 
@@ -49,7 +94,7 @@ class MyStatsViewModel @Inject constructor(
         _matchList.value = _matchList.value.sortedByDescending { it.dateAndTime }
     }
 
-    private suspend fun computeStats() {
+    private fun computeStats() {
         _totalMatches.value = _matchList.value.size
         var winCounter = 0
         _matchList.value.forEach {
@@ -69,7 +114,16 @@ class MyStatsViewModel @Inject constructor(
             }
         }
 
-        _gamesMostPlayed.value = gamesPlayed.toList().sortedByDescending { it.second }
+
+        if (gamesPlayed.size < 3) {
+            val copyList = gamesPlayed.toList().toMutableList()
+            for (i in 1..3 - copyList.size) {
+                copyList.add(Pair("No game", 0))
+            }
+            _gamesMostPlayed.value = copyList.toList().sortedByDescending { it.second }
+        } else _gamesMostPlayed.value = gamesPlayed.toList().sortedByDescending { it.second }
+
+        Log.i("indexTAG", "computeGamesMostPlayed: ${_gamesMostPlayed.value}")
 
     }
 
@@ -81,19 +135,23 @@ class MyStatsViewModel @Inject constructor(
                 playersPlayed.add(player)
             }
         }
-        Log.i("TAG", "allPlayerList: $playersPlayed")
 
-        playersPlayed.forEach {player ->
+        playersPlayed.forEach { player ->
             if (!playerMap.containsKey(player) && player != user) {
-                val count = playersPlayed.count{ it == player }
+                val count = playersPlayed.count { it == player }
                 playerMap[player] = count
             }
         }
 
-        Log.i("TAG", "playerMap: $playerMap")
+        if (playerMap.size < 3) {
+            val copyList = playerMap.toList().toMutableList()
+            for (i in 1..3 - copyList.size) {
+                copyList.add(Pair("No player", 0))
+            }
+            _playersMostPlayed.value = copyList.toList().sortedByDescending { it.second }
+        } else _playersMostPlayed.value = playerMap.toList().sortedByDescending { it.second }
 
-        _playersMostPlayed.value = playerMap.toList().sortedByDescending { it.second }
-        Log.i("TAG", "finalList: ${_playersMostPlayed.value}")
+        Log.i("indexTAG", "computePlayersMostPlayed: ${_playersMostPlayed.value}")
 
     }
 
