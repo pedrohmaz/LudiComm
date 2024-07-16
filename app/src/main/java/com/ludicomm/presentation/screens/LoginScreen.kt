@@ -14,11 +14,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,19 +30,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ludicomm.presentation.components.CustomTextField
 import com.ludicomm.presentation.viewmodel.LoginViewModel
 import com.ludicomm.util.LoginInputFields
-import com.ludicomm.util.SignUpInputFields
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,11 +74,15 @@ fun LoginScreen(
         ) { paddingValues ->
             PaddingValues(8.dp)
 
-            val emailText by viewModel.emailInput.collectAsState()
-            val passwordText by viewModel.passwordInput.collectAsState()
+            val emailInput by viewModel.emailInput.collectAsState()
+            val passwordInput by viewModel.passwordInput.collectAsState()
             val state by viewModel.logInState.collectAsState()
             val scope = rememberCoroutineScope()
             val context = LocalContext.current
+
+            var showPassword by remember {
+                mutableStateOf(false)
+            }
 
             Column(
                 Modifier
@@ -87,7 +97,7 @@ fun LoginScreen(
                 Text(text = "Email", fontSize = 24.sp)
 
                 CustomTextField(
-                    text = emailText,
+                    text = emailInput,
                     keyOpt = KeyboardOptions(
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next
@@ -97,13 +107,15 @@ fun LoginScreen(
 
                 Text(text = "Password", fontSize = 24.sp)
 
-                CustomTextField(
-                    text = passwordText,
-                    keyOpt = KeyboardOptions(
+                OutlinedTextField(
+                    value = passwordInput,
+                    visualTransformation = if (!showPassword) PasswordVisualTransformation()
+                    else VisualTransformation.None,
+                    keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Next
                     ),
-                    onTextChange = { viewModel.changeInput(LoginInputFields.Password, it) }
+                    onValueChange = { viewModel.changeInput(LoginInputFields.Password, it) }
                 )
 
                 Row(
@@ -115,9 +127,16 @@ fun LoginScreen(
                     }
                 }
 
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = showPassword, onCheckedChange = {
+                        showPassword = !showPassword
+                    })
+                    Text(text = "Show Password")
+                }
+
                 Button(onClick = {
                     scope.launch {
-                        viewModel.loginUser(emailText, passwordText)
+                        viewModel.loginUser(emailInput, passwordInput)
                     }
 
                 }) {

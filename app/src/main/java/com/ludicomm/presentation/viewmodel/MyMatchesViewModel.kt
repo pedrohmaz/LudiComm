@@ -20,6 +20,9 @@ class MyMatchesViewModel @Inject constructor(
     private val _matchList = MutableStateFlow(listOf<Match>())
     val matchList = _matchList.asStateFlow()
 
+   private val _noMatches = MutableStateFlow(false)
+    val noMatches = _noMatches.asStateFlow()
+
     init {
         viewModelScope.launch {
            getAllUserMatches()
@@ -30,6 +33,7 @@ class MyMatchesViewModel @Inject constructor(
         _matchList.value =
             firestoreRepository.getAllUserMatches(authRepository.currentUser()?.displayName.toString())
         _matchList.value = _matchList.value.sortedByDescending { it.dateAndTime }
+        if (_matchList.value.isEmpty()) _noMatches.value = true
     }
 
 }

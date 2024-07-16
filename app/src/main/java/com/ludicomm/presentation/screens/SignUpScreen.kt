@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -24,18 +26,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ludicomm.presentation.components.CustomTextField
-import com.ludicomm.util.SignUpInputFields
 import com.ludicomm.presentation.viewmodel.SignUpViewModel
+import com.ludicomm.util.SignUpInputFields
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,6 +73,10 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), onNavigateToLogin
             val state by viewModel.signUpState.collectAsState()
             val scope = rememberCoroutineScope()
             val context = LocalContext.current
+
+            var showPassword by remember {
+                mutableStateOf(false)
+            }
 
             Column(
                 Modifier
@@ -101,25 +112,36 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), onNavigateToLogin
 
                 Text(text = "Password", fontSize = 24.sp)
 
-                CustomTextField(
-                    text = passwordInput,
-                    keyOpt = KeyboardOptions(
+                OutlinedTextField(
+                    value = passwordInput,
+                    visualTransformation = if (!showPassword) PasswordVisualTransformation()
+                    else VisualTransformation.None,
+                    keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Next
                     ),
-                    onTextChange = { viewModel.changeInput(SignUpInputFields.Password, it) }
+                    onValueChange = { viewModel.changeInput(SignUpInputFields.Password, it) }
                 )
 
                 Text(text = "Repeat Password", fontSize = 24.sp)
 
-                CustomTextField(
-                    text = confirmPasswordInput,
-                    keyOpt = KeyboardOptions(
+                OutlinedTextField(
+                    value = confirmPasswordInput,
+                    visualTransformation = if (!showPassword) PasswordVisualTransformation()
+                    else VisualTransformation.None,
+                    keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Next
                     ),
-                    onTextChange = { viewModel.changeInput(SignUpInputFields.ConfirmPassword, it) }
+                    onValueChange = { viewModel.changeInput(SignUpInputFields.ConfirmPassword, it) }
                 )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = showPassword, onCheckedChange = {
+                        showPassword = !showPassword
+                    })
+                    Text(text = "Show Password")
+                }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -138,20 +160,19 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), onNavigateToLogin
                     Text(text = "SignUp")
                 }
 
-
                 LaunchedEffect(key1 = state) {
-                    if (state.isSuccess?.isNotEmpty() == true) {
+                    if (state.isSuccess.isNotEmpty()) {
                         val success = state.isSuccess
-                        Toast.makeText(context, "$success", Toast.LENGTH_SHORT)
+                        Toast.makeText(context, success, Toast.LENGTH_SHORT)
                             .show()
                         onNavigateToLogin()
                     }
-                    if (state.isError?.isNotEmpty() == true) {
+                    if (state.isError.isNotEmpty()) {
                         val error = state.isError
-                        Toast.makeText(context, "$error", Toast.LENGTH_SHORT)
+                        Toast.makeText(context, error, Toast.LENGTH_SHORT)
                             .show()
                         viewModel.resetState()
-                }
+                    }
 
 
                 }

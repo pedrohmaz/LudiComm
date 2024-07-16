@@ -47,7 +47,6 @@ fun MainScreen(
 
     val context = LocalContext.current
     val userName by viewModel.username.collectAsState()
-    val emailSent by viewModel.emailSent.collectAsState()
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
@@ -103,13 +102,12 @@ fun MainScreen(
                             text = "Verified account: ${viewModel.isAccountVerified()}"
                         )
                         Button(onClick = {
-                            scope.launch(Dispatchers.IO) {
+                            scope.launch {
                                 viewModel.sendEmailVerification{navRoutes[LOGIN]?.invoke()}.also {
                                     withContext(Dispatchers.Main) {
                                         Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
                                     }
                                 }
-                                withContext(Dispatchers.Main) { if (emailSent) navRoutes[MAIN]?.invoke() }
                             }
                         }) {
                             Text(text = "Verify email")

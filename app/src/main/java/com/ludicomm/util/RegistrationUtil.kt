@@ -45,7 +45,6 @@ object RegistrationUtil {
                 success = false
                 emit(Resource.Error(CONFIRM_PASSWORD_MESSAGE))
             }
-            // todo if(!validUserName) return false
             if (success) emit(Resource.Success(Unit))
         }
     }

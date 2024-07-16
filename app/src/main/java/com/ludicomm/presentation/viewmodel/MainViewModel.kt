@@ -1,5 +1,6 @@
 package com.ludicomm.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ludicomm.data.model.BoardGames
@@ -31,23 +32,10 @@ class MainViewModel @Inject constructor(
     private val _username = MutableStateFlow(authRepository.currentUser()?.displayName)
     val username = _username.asStateFlow()
 
-    private val _emailSent = MutableStateFlow(false)
-    val emailSent = _emailSent.asStateFlow()
 
     fun isAccountVerified(): Boolean? {
         return authRepository.currentUser()?.isEmailVerified
     }
-
-//    private fun searchGames(name: String) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            //try {
-//            val result = repo.getBoardGames(name)
-//            _boardGames.value = result
-//            // } catch (e: Exception) {
-//            // _boardGames.value =  BoardGames()
-//            // }
-//        }
-//    }
 
     private fun searchCollection(name: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -67,15 +55,17 @@ class MainViewModel @Inject constructor(
     }
 
     suspend fun sendEmailVerification(navigate: () -> Unit): String {
-        return try {
+        var message = "Email sent. Please check your email inbox."
+        viewModelScope.launch {
+        try {
             authRepository.currentUser()?.sendEmailVerification()?.await()
-            _emailSent.value = true
             signOut(navigate)
-            "Email sent. Please check your email inbox."
         } catch (e: Exception) {
-            "Could not send email. Please check your internet connection."
+           message = "Could not send email. Please check your internet connection."
         }
     }
+        return message
+}
 
     fun signOut(navigate: () -> Unit){
         authRepository.signOutUser()

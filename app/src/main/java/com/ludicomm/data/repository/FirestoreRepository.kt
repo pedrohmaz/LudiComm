@@ -6,10 +6,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface FirestoreRepository {
 
-   suspend fun registerUser(id: String, username: String): Flow<Resource<Unit>>
+    suspend fun registerUser(id: String, username: String): Flow<Resource<Unit>>
 
-   suspend fun submitMatch(match: Match): Flow<Resource<Unit>>
+    suspend fun submitMatch(match: Match): Flow<Resource<Unit>>
 
-   suspend fun getAllUserMatches(user: String): List<Match>
+    suspend fun getAllUserMatches(user: String): List<Match>
 
+    suspend fun isUsernameUsed(username: String): Boolean
 }

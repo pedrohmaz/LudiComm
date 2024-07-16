@@ -54,6 +54,7 @@ fun MyMatchesScreen(
 ) {
 
     val matchList by viewModel.matchList.collectAsState()
+    val noMatches by viewModel.noMatches.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -88,7 +89,15 @@ fun MyMatchesScreen(
                 }
 
             ) { innerPadding ->
-                if (matchList.isEmpty())
+                if (noMatches) Box(Modifier.fillMaxSize()) {
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.Center),
+                        text = "No matches yet :(",
+                        fontSize = 22.sp
+                    )
+                }
+                else if (matchList.isEmpty())
                     Box(Modifier.fillMaxSize()) {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center)
