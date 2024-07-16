@@ -2,9 +2,6 @@ package com.ludicomm.presentation.viewmodel
 
 import android.util.Log
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.yml.charts.common.extensions.formatToSinglePrecision
@@ -15,7 +12,13 @@ import com.ludicomm.data.model.Match
 import com.ludicomm.data.repository.AuthRepository
 import com.ludicomm.data.repository.FirestoreRepository
 import com.ludicomm.presentation.theme.DarkBluePlayer
+import com.ludicomm.presentation.theme.DarkGreenPlayer
+import com.ludicomm.presentation.theme.GreyPlayer
+import com.ludicomm.presentation.theme.LightBluePlayer
 import com.ludicomm.presentation.theme.LightGreenPlayer
+import com.ludicomm.presentation.theme.OrangePlayer
+import com.ludicomm.presentation.theme.PinkPlayer
+import com.ludicomm.presentation.theme.PurplePlayer
 import com.ludicomm.presentation.theme.RedPlayer
 import com.ludicomm.presentation.theme.YellowPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,10 +27,23 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+val chartColorList = listOf(
+    RedPlayer,
+    DarkBluePlayer,
+    DarkGreenPlayer,
+    YellowPlayer,
+    PurplePlayer,
+    OrangePlayer,
+    PinkPlayer,
+    LightBluePlayer,
+    LightGreenPlayer,
+    GreyPlayer
+)
+
 @HiltViewModel
 class MyStatsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
-    private val authRepository: AuthRepository
+    authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _matchList = MutableStateFlow(listOf<Match>())
@@ -45,14 +61,10 @@ class MyStatsViewModel @Inject constructor(
     private val _playersMostPlayed = MutableStateFlow<List<Pair<String, Int>>>(listOf())
     val playersMostPlayed = _playersMostPlayed.asStateFlow()
 
-    private val _pieChartData = MutableStateFlow(
-        PieChartData(
-            slices = listOf(),
-            plotType = PlotType.Pie
-        )
-    )
-    val pieChartData = _pieChartData.asStateFlow()
+    val user = authRepository.currentUser()?.displayName.toString()
 
+
+    // chart vars
     private val _pieChartConfig = MutableStateFlow(
         PieChartConfig(
             backgroundColor = Color.Transparent,
@@ -63,28 +75,36 @@ class MyStatsViewModel @Inject constructor(
     )
     val pieChartConfig = _pieChartConfig.asStateFlow()
 
+    private val _winLossChartData = MutableStateFlow(
+        PieChartData(
+            slices = listOf(),
+            plotType = PlotType.Pie
+        )
+    )
+    val winLossChartData = _winLossChartData.asStateFlow()
 
-    val user = authRepository.currentUser()?.displayName.toString()
+    private val _gamesChartData = MutableStateFlow(
+        PieChartData(
+            slices = listOf(),
+            plotType = PlotType.Pie
+        )
+    )
+    val gamesChartData = _gamesChartData.asStateFlow()
+
+    private val _playersChartData = MutableStateFlow(
+        PieChartData(
+            slices = listOf(),
+            plotType = PlotType.Pie
+        )
+    )
+    val playersChartData = _playersChartData.asStateFlow()
 
 
     init {
         viewModelScope.launch {
             getAllUserMatches()
             computeStats()
-            _pieChartData.value = PieChartData(
-                listOf(
-                    PieChartData.Slice(
-                        "Wins: ${(_totalWins.value * 100f / _totalMatches.value).formatToSinglePrecision()}%",
-                        _totalWins.value.toFloat(),
-                        RedPlayer
-                    ),
-                    PieChartData.Slice(
-                        "Losses: ${((_totalMatches.value - _totalWins.value) * 100f / _totalMatches.value).formatToSinglePrecision()}%",
-                        (_totalMatches.value - _totalWins.value).toFloat(), DarkBluePlayer
-                    )
-                ),
-                plotType = PlotType.Pie
-            )
+            populateCharts()
         }
     }
 
@@ -153,6 +173,60 @@ class MyStatsViewModel @Inject constructor(
 
         Log.i("indexTAG", "computePlayersMostPlayed: ${_playersMostPlayed.value}")
 
+    }
+
+    private fun populateCharts() {
+
+        _winLossChartData.value = PieChartData(
+            listOf(
+                PieChartData.Slice(
+                    "Wins: ${(_totalWins.value * 100f / _totalMatches.value).formatToSinglePrecision()}%",
+                    _totalWins.value.toFloat(),
+                    RedPlayer
+                ),
+                PieChartData.Slice(
+                    "Losses: ${((_totalMatches.value - _totalWins.value) * 100f / _totalMatches.value).formatToSinglePrecision()}%",
+                    (_totalMatches.value - _totalWins.value).toFloat(), DarkBluePlayer
+                )
+            ),
+            plotType = PlotType.Pie
+        )
+
+        val gameChartSliceList = mutableListOf<PieChartData.Slice>()
+        for (i in 0..<_gamesMostPlayed.value.size) {
+            if (i < 10) {
+                val ellipsis = if(_gamesMostPlayed.value[i].first.length > 15) "..." else ""
+                gameChartSliceList.add(
+                    PieChartData.Slice(
+                        "${_gamesMostPlayed.value[i].first.take(15)}$ellipsis",
+                        _gamesMostPlayed.value[i].second.toFloat(),
+                        chartColorList[i]
+                    )
+                )
+            }
+        }
+        _gamesChartData.value = PieChartData(
+            gameChartSliceList,
+            plotType = PlotType.Pie
+        )
+
+        val playerChartSliceList = mutableListOf<PieChartData.Slice>()
+        for (i in 0..<_playersMostPlayed.value.size) {
+            if (i < 10) {
+                val ellipsis = if(_playersMostPlayed.value[i].first.length > 15) "..." else ""
+                playerChartSliceList.add(
+                    PieChartData.Slice(
+                        "${_playersMostPlayed.value[i].first.take(15)}$ellipsis",
+                        _playersMostPlayed.value[i].second.toFloat(),
+                        chartColorList[i]
+                    )
+                )
+            }
+        }
+        _playersChartData.value = PieChartData(
+            playerChartSliceList,
+            plotType = PlotType.Pie
+        )
     }
 
 }
