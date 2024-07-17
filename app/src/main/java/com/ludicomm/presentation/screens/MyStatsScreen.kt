@@ -76,7 +76,8 @@ fun MyStatsScreen(
             onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
             onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
             onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
-            onClickSignOut = { navRoutes[LOGIN] })
+            onClickSignOut = { navRoutes[LOGIN]?.invoke() },
+            onClickFriends = {navRoutes[FRIENDS]?.invoke()})
         {
             Scaffold(
                 topBar = {

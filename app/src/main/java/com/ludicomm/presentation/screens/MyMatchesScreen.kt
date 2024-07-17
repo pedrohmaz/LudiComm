@@ -65,7 +65,8 @@ fun MyMatchesScreen(
             onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
             onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
             onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
-            onClickSignOut = { navRoutes[LOGIN] }) {
+            onClickSignOut = { navRoutes[LOGIN] },
+            onClickFriends = { navRoutes[FRIENDS]?.invoke()}) {
             Scaffold(
                 topBar = {
                     TopAppBar(title = { Text(text = "My Matches") }, navigationIcon = {

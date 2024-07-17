@@ -29,6 +29,7 @@ fun CustomNavigationDrawer(
     onClickMyMatches: () -> Unit,
     onClickMyStats: () -> Unit,
     onClickSignOut: () -> Unit,
+    onClickFriends: () -> Unit,
     content: @Composable () -> Unit
 ) {
 
@@ -112,7 +113,24 @@ fun CustomNavigationDrawer(
                             onClick = { onClickMyStats() }
                         )
                         HorizontalDivider()
+                        NavigationDrawerItem(
+                            label = {
+                                Text(
+                                    text = "Friends",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
+                                )
+                            },
+                            shape = RectangleShape,
+                            selected = false,
+                            colors = NavigationDrawerItemDefaults.colors(
+                                unselectedContainerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            onClick = { onClickFriends() }
+                        )
+                        HorizontalDivider()
                     }
+
                     Column(modifier = Modifier.align(Alignment.BottomStart)) {
                         HorizontalDivider()
                         NavigationDrawerItem(

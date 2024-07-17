@@ -1,6 +1,5 @@
 package com.ludicomm.presentation.screens
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -143,7 +142,8 @@ fun CreateMatchScreen(
             onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
             onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
             onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
-            onClickSignOut = { navRoutes[LOGIN] })
+            onClickSignOut = { navRoutes[LOGIN] },
+            onClickFriends = {navRoutes[FRIENDS]?.invoke()})
         {
             Scaffold(
                 topBar = {
@@ -308,6 +308,7 @@ fun CreateMatchScreen(
                                         "",
                                         CreateMatchInputFields.GameQuery
                                     )
+                                    viewModel.toggleSuggestionList(false)
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Clear,

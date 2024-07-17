@@ -14,6 +14,7 @@ const val MAIN = "main"
 const val CREATE_MATCH = "create_match"
 const val MY_MATCHES = "my_matches"
 const val MY_STATS = "my_stats"
+const val FRIENDS = "friends"
 
 
 @Composable
@@ -25,7 +26,8 @@ fun Navigator(navController: NavHostController = rememberNavController(), authRe
         MAIN to {navController.navigate(MAIN)},
         CREATE_MATCH to {navController.navigate(CREATE_MATCH)},
         MY_MATCHES to {navController.navigate(MY_MATCHES)},
-        MY_STATS to {navController.navigate(MY_STATS)}
+        MY_STATS to {navController.navigate(MY_STATS)},
+        FRIENDS to {navController.navigate(FRIENDS)}
         )
 
     NavHost(navController = navController, startDestination = LOGIN) {
@@ -64,6 +66,13 @@ fun Navigator(navController: NavHostController = rememberNavController(), authRe
         composable(MY_STATS){
             AuthGuard(authRepository = authRepository, navHostController = navController) {
                 MyStatsScreen(
+                    navRoutes = navRoutes
+                )
+            }
+        }
+        composable(FRIENDS){
+            AuthGuard(authRepository = authRepository, navHostController = navController) {
+                FriendsScreen(
                     navRoutes = navRoutes
                 )
             }

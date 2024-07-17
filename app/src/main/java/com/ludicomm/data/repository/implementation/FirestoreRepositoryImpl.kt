@@ -1,6 +1,7 @@
 package com.ludicomm.data.repository.implementation
 
 import android.util.Log
+import co.yml.charts.common.extensions.isNotNull
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.firestoreSettings
@@ -55,12 +56,40 @@ class FirestoreRepositoryImpl @Inject constructor(private val firestore: Firebas
             .await().toObjects<Match>()
     }
 
+    override suspend fun requestFriend(username: String, currentUser: String) {
+        val user = getUser(username)
+        if (user != null) {
+            val newRequestList = user.pendingRequestsReceived.toMutableList()
+            newRequestList.add(currentUser)
+            val updatedUser = user.copy(pendingRequestsReceived = newRequestList)
+            firestore.collection("users").document(user.id).set(updatedUser)
+
+            val newSendList = user.pendingRequestsSent.toMutableList()
+            newSendList.add(user.username)
+            val currentUserObject = getUser(currentUser)
+            val updatedCurrentUser = currentUserObject?.copy(pendingRequestsSent = newSendList)
+            firestore.collection("users").document(updatedCurrentUser!!.id).set(updatedCurrentUser)
+        }
+        else Log.i("friendsTAG", "getUser: send request failed")
+    }
+
+    override suspend fun getUserFriends(username: String): List<String> {
+        val user = getUser(username)
+        return user?.friends ?: listOf()
+    }
+
     override suspend fun isUsernameUsed(username: String): Boolean {
         val usernameList = mutableListOf<User>()
         firestore.collection("users").whereEqualTo("lowerCaseUsername", username.lowercase())
-                .get().addOnSuccessListener { usernameList.addAll(it.toObjects<User>()) }.await()
-        Log.i("TAG", "isUsernameUsed: $usernameList")
+            .get().addOnSuccessListener { usernameList.addAll(it.toObjects<User>()) }.await()
         return usernameList.isNotEmpty()
     }
+
+    override suspend fun getUser(username: String): User? {
+        val user = firestore.collection("users").whereEqualTo("lowerCaseUsername", username.lowercase()).get().await().toObjects<User>()
+        return if (user.isNotEmpty()) user[0] else return null
+    }
+
+
 }
 
