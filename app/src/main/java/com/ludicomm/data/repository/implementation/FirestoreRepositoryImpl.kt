@@ -1,7 +1,6 @@
 package com.ludicomm.data.repository.implementation
 
-import android.util.Log
-import co.yml.charts.common.extensions.isNotNull
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.firestoreSettings
@@ -56,21 +55,56 @@ class FirestoreRepositoryImpl @Inject constructor(private val firestore: Firebas
             .await().toObjects<Match>()
     }
 
-    override suspend fun requestFriend(username: String, currentUser: String) {
-        val user = getUser(username)
-        if (user != null) {
-            val newRequestList = user.pendingRequestsReceived.toMutableList()
-            newRequestList.add(currentUser)
-            val updatedUser = user.copy(pendingRequestsReceived = newRequestList)
-            firestore.collection("users").document(user.id).set(updatedUser)
+    override suspend fun requestFriend(
+        username: String,
+        currentUser: String
+    ): Flow<Resource<Unit>> {
+        return flow {
+            emit(Resource.Loading())
+            try {
+                val user = getUser(username)
+                if (user != null) {
+                    if (currentUser.lowercase() != username.lowercase()) {
+                        val newRequestList = user.pendingRequestsReceived.toMutableList()
+                        newRequestList.add(currentUser)
+                        val updatedUser = user.copy(pendingRequestsReceived = newRequestList)
+                        firestore.collection("users").document(user.id).set(updatedUser)
 
-            val newSendList = user.pendingRequestsSent.toMutableList()
-            newSendList.add(user.username)
-            val currentUserObject = getUser(currentUser)
-            val updatedCurrentUser = currentUserObject?.copy(pendingRequestsSent = newSendList)
-            firestore.collection("users").document(updatedCurrentUser!!.id).set(updatedCurrentUser)
+                        val newSendList = user.pendingRequestsSent.toMutableList()
+                        newSendList.add(user.username)
+                        val currentUserObject = getUser(currentUser)
+                        val updatedCurrentUser =
+                            currentUserObject?.copy(pendingRequestsSent = newSendList)
+                        firestore.collection("users").document(updatedCurrentUser!!.id)
+                            .set(updatedCurrentUser)
+                        emit(Resource.Success(Unit))
+                    } else emit(Resource.Error(message = "Same username as current user"))
+                } else {
+                    emit(Resource.Error(message = "User not found"))
+                }
+            } catch (e: Exception) {
+                emit(Resource.Error(message = "$e"))
+            }
         }
-        else Log.i("friendsTAG", "getUser: send request failed")
+    }
+
+    override suspend fun acceptFriendRequest(requestingUser: String, requestedUser: String) {
+        val currentUserId = getUser(requestingUser)?.id ?: ""
+        val otherUserId = getUser(requestedUser)?.id ?: ""
+        firestore.collection("users").document(currentUserId)
+            .update("friends", FieldValue.arrayUnion(requestedUser))
+        firestore.collection("users").document(otherUserId)
+            .update("friends", FieldValue.arrayUnion(requestingUser))
+        deleteFriendRequest(requestingUser, requestedUser)
+    }
+
+    override suspend fun deleteFriendRequest(requestingUser: String, requestedUser: String) {
+        val currentUserId = getUser(requestingUser)?.id ?: ""
+        val otherUserId = getUser(requestedUser)?.id ?: ""
+        firestore.collection("users").document(currentUserId)
+            .update("pendingRequestsSent", FieldValue.arrayRemove(requestedUser))
+        firestore.collection("users").document(otherUserId)
+            .update("pendingRequestsReceived", FieldValue.arrayRemove(requestingUser))
     }
 
     override suspend fun getUserFriends(username: String): List<String> {
@@ -86,7 +120,9 @@ class FirestoreRepositoryImpl @Inject constructor(private val firestore: Firebas
     }
 
     override suspend fun getUser(username: String): User? {
-        val user = firestore.collection("users").whereEqualTo("lowerCaseUsername", username.lowercase()).get().await().toObjects<User>()
+        val user =
+            firestore.collection("users").whereEqualTo("lowerCaseUsername", username.lowercase())
+                .get().await().toObjects<User>()
         return if (user.isNotEmpty()) user[0] else return null
     }
 

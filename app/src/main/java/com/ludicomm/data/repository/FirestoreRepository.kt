@@ -17,7 +17,10 @@ interface FirestoreRepository {
 
     suspend fun getUserFriends(username: String): List<String>
 
-    suspend fun requestFriend(username: String, currentUser: String)
+    suspend fun requestFriend(username: String, currentUser: String): Flow<Resource<Unit>>
 
     suspend fun getUser(username: String): User?
+
+    suspend fun deleteFriendRequest(requestingUser: String, requestedUser: String)
+    suspend fun acceptFriendRequest(requestingUser: String, requestedUser: String)
 }
