@@ -58,6 +58,7 @@ class FriendsViewModel @Inject constructor(
         viewModelScope.launch {
             firestoreRepository.acceptFriendRequest(requestingUser, username)
             updateCurrentUserData()
+            _state.value = FriendsState(isSuccess = "Friend request accepted")
         }
     }
 
@@ -65,6 +66,7 @@ class FriendsViewModel @Inject constructor(
         viewModelScope.launch {
             firestoreRepository.deleteFriendRequest(username, requestedUser)
             updateCurrentUserData()
+            _state.value = FriendsState(isSuccess = "Friend request dismissed")
         }
     }
 
@@ -72,6 +74,7 @@ class FriendsViewModel @Inject constructor(
         viewModelScope.launch {
             firestoreRepository.deleteFriendRequest(requestingUser, username)
             updateCurrentUserData()
+            _state.value = FriendsState(isSuccess = "Friend request dismissed")
         }
     }
 

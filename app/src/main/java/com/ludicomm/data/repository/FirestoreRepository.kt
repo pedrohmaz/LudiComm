@@ -15,12 +15,16 @@ interface FirestoreRepository {
 
     suspend fun isUsernameUsed(username: String): Boolean
 
-    suspend fun getUserFriends(username: String): List<String>
-
-    suspend fun requestFriend(username: String, currentUser: String): Flow<Resource<Unit>>
+    suspend fun requestFriend(username: String, currentUsername: String): Flow<Resource<Unit>>
 
     suspend fun getUser(username: String): User?
 
     suspend fun deleteFriendRequest(requestingUser: String, requestedUser: String)
+
     suspend fun acceptFriendRequest(requestingUser: String, requestedUser: String)
+
+    suspend fun isUserAFriend(username: String, currentUsername: String): Boolean
+
+    suspend fun isRequestAlreadySent(username: String, currentUsername: String): Boolean
+
 }

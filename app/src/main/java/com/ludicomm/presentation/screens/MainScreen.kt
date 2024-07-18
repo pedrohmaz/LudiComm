@@ -2,8 +2,10 @@ package com.ludicomm.presentation.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -58,9 +60,9 @@ fun MainScreen(
             onClickMain = { navRoutes[MAIN]?.invoke() },
             onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
             onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
-            onClickMyStats = {navRoutes[MY_STATS]?.invoke()},
-            onClickSignOut = { viewModel.signOut { navRoutes[LOGIN]?.invoke() }},
-            onClickFriends = {navRoutes[FRIENDS]?.invoke()})
+            onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
+            onClickSignOut = { viewModel.signOut { navRoutes[LOGIN]?.invoke() } },
+            onClickFriends = { navRoutes[FRIENDS]?.invoke() })
         {
             Scaffold(
                 topBar = {
@@ -85,59 +87,69 @@ fun MainScreen(
                 }
 
             ) { innerPadding ->
-                Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(innerPadding),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Spacer(modifier = Modifier.height(100.dp))
-                    Text(
-                        text = "Welcome $userName!",
-                        fontSize = 20.sp
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    if (viewModel.isAccountVerified() == false) {
+                Box (Modifier.fillMaxSize()){
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(innerPadding),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(100.dp))
                         Text(
-                            text = "Verified account: ${viewModel.isAccountVerified()}"
+                            text = "Welcome $userName!",
+                            fontSize = 20.sp
                         )
-                        Button(onClick = {
-                            scope.launch {
-                                viewModel.sendEmailVerification{navRoutes[LOGIN]?.invoke()}.also {
-                                    withContext(Dispatchers.Main) {
-                                        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                                    }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        if (viewModel.isAccountVerified() == false) {
+                            Text(
+                                text = "Verified account: ${viewModel.isAccountVerified()}"
+                            )
+                            Button(onClick = {
+                                scope.launch {
+                                    viewModel.sendEmailVerification { navRoutes[LOGIN]?.invoke() }
+                                        .also {
+                                            withContext(Dispatchers.Main) {
+                                                Toast.makeText(context, it, Toast.LENGTH_SHORT)
+                                                    .show()
+                                            }
+                                        }
                                 }
+                            }) {
+                                Text(text = "Verify email")
                             }
-                        }) {
-                            Text(text = "Verify email")
-                        }
-                        Button(onClick = {
-                            viewModel.signOut{navRoutes[LOGIN]?.invoke()}
-                            navRoutes[LOGIN]?.invoke()
-                        }) {
-                            Text(text = "Sign Out")
-                        }
-                    } else {
-                        Button(onClick = { navRoutes[CREATE_MATCH]?.invoke() }) {
-                            Text(text = "Create match")
+                            Button(onClick = {
+                                viewModel.signOut { navRoutes[LOGIN]?.invoke() }
+                                navRoutes[LOGIN]?.invoke()
+                            }) {
+                                Text(text = "Sign Out")
+                            }
+                        } else {
+                            Button(onClick = { navRoutes[CREATE_MATCH]?.invoke() }) {
+                                Text(text = "Create match")
+                            }
+
+                            Button(onClick = { navRoutes[MY_MATCHES]?.invoke() }) {
+                                Text(text = "My matches")
+                            }
+
+                            Button(onClick = { navRoutes[MY_STATS]?.invoke() }) {
+                                Text(text = "My stats")
+                            }
+
+                            Button(onClick = { navRoutes[FRIENDS]?.invoke() }) {
+                                Text(text = "Friends")
+                            }
+
                         }
 
-                        Button(onClick = { navRoutes[MY_MATCHES]?.invoke() }) {
-                            Text(text = "My matches")
-                        }
-
-                        Button(onClick = { navRoutes[MY_STATS]?.invoke() }) {
-                            Text(text = "My stats")
-                        }
-
-                        Button(onClick = { viewModel.signOut{navRoutes[LOGIN]?.invoke()} }) {
-                            Text(text = "Sign out")
-                        }
+                    }
+                    Button(
+                        modifier = Modifier.align(Alignment.BottomCenter).padding(vertical = 16.dp),
+                        onClick = { viewModel.signOut { navRoutes[LOGIN]?.invoke() } }) {
+                        Text(text = "Sign out")
                     }
                 }
-
 
             }
         }

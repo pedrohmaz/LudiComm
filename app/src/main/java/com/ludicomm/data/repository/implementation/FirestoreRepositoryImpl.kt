@@ -57,27 +57,27 @@ class FirestoreRepositoryImpl @Inject constructor(private val firestore: Firebas
 
     override suspend fun requestFriend(
         username: String,
-        currentUser: String
+        currentUsername: String
     ): Flow<Resource<Unit>> {
         return flow {
             emit(Resource.Loading())
             try {
                 val user = getUser(username)
                 if (user != null) {
-                    if (currentUser.lowercase() != username.lowercase()) {
-                        val newRequestList = user.pendingRequestsReceived.toMutableList()
-                        newRequestList.add(currentUser)
-                        val updatedUser = user.copy(pendingRequestsReceived = newRequestList)
-                        firestore.collection("users").document(user.id).set(updatedUser)
-
-                        val newSendList = user.pendingRequestsSent.toMutableList()
-                        newSendList.add(user.username)
-                        val currentUserObject = getUser(currentUser)
-                        val updatedCurrentUser =
-                            currentUserObject?.copy(pendingRequestsSent = newSendList)
-                        firestore.collection("users").document(updatedCurrentUser!!.id)
-                            .set(updatedCurrentUser)
-                        emit(Resource.Success(Unit))
+                    if (currentUsername.lowercase() != username.lowercase()) {
+                        if (!isUserAFriend(username, currentUsername)) {
+                            if (!isRequestAlreadySent(username, currentUsername)) {
+                                firestore.collection("users").document(user.id)
+                                    .update(
+                                        "pendingRequestsReceived",
+                                        FieldValue.arrayUnion(currentUsername)
+                                    )
+                                val currentUserId = getUser(currentUsername)?.id ?: ""
+                                firestore.collection("users").document(currentUserId)
+                                    .update("pendingRequestsSent", FieldValue.arrayUnion(user.username))
+                                emit(Resource.Success(Unit))
+                            } else emit(Resource.Error(message = "Request already sent"))
+                        } else emit(Resource.Error(message = "User is already a friend"))
                     } else emit(Resource.Error(message = "Same username as current user"))
                 } else {
                     emit(Resource.Error(message = "User not found"))
@@ -107,16 +107,27 @@ class FirestoreRepositoryImpl @Inject constructor(private val firestore: Firebas
             .update("pendingRequestsReceived", FieldValue.arrayRemove(requestingUser))
     }
 
-    override suspend fun getUserFriends(username: String): List<String> {
-        val user = getUser(username)
-        return user?.friends ?: listOf()
-    }
 
     override suspend fun isUsernameUsed(username: String): Boolean {
         val usernameList = mutableListOf<User>()
         firestore.collection("users").whereEqualTo("lowerCaseUsername", username.lowercase())
             .get().addOnSuccessListener { usernameList.addAll(it.toObjects<User>()) }.await()
         return usernameList.isNotEmpty()
+    }
+
+    override suspend fun isUserAFriend(username: String, currentUsername: String): Boolean {
+        val currentUser = getUser(currentUsername) ?: User()
+        val lowercaseFriends = mutableListOf<String>()
+        currentUser.friends.forEach { lowercaseFriends.add(it.lowercase()) }
+        return lowercaseFriends.contains(username.lowercase())
+    }
+
+    override suspend fun isRequestAlreadySent(username: String, currentUsername: String): Boolean {
+        val currentUser = getUser(currentUsername) ?: User()
+        val lowercaseFriends = mutableListOf<String>()
+        currentUser.pendingRequestsSent.forEach { lowercaseFriends.add(it.lowercase()) }
+        currentUser.pendingRequestsReceived.forEach { lowercaseFriends.add(it.lowercase()) }
+        return lowercaseFriends.contains(username.lowercase())
     }
 
     override suspend fun getUser(username: String): User? {
