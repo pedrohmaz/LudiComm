@@ -19,6 +19,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     private const val BGG_BASE_URL = "https://boardgamegeek.com/xmlapi2/"
+    private const val FCM_BASE_URL = "http://10.0.2.2:8080/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -28,10 +29,9 @@ object NetworkModule {
         .addInterceptor(loggingInterceptor)
         .build()
 
-
     @Provides
     @Singleton
-    fun provideRetrofit(): Retrofit {
+    fun provideBGGRetrofit(): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BGG_BASE_URL)
             .client(okHttpClient)
@@ -42,16 +42,14 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideBGGApi(retrofit: Retrofit): BGGApi {
-       return retrofit.create(BGGApi::class.java)
+        return retrofit.create(BGGApi::class.java)
     }
-
 
     @Provides
     @Singleton
     fun providesConnectivityObserver(@ApplicationContext context: Context) : ConnectivityObserver {
         return ConnectivityObserverImpl(context)
     }
-
 }
 
 

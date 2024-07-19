@@ -1,5 +1,9 @@
 package com.ludicomm.data.repository
 
+import com.google.android.gms.tasks.Task
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ludicomm.data.model.Match
 import com.ludicomm.data.model.User
 import com.ludicomm.util.stateHandlers.Resource
@@ -27,4 +31,5 @@ interface FirestoreRepository {
 
     suspend fun isRequestAlreadySent(username: String, currentUsername: String): Boolean
 
+    suspend fun getDocument(collection: String, document: String): DocumentReference
 }

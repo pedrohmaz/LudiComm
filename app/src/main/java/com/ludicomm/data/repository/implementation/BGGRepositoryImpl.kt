@@ -10,8 +10,10 @@ import com.ludicomm.util.stateHandlers.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import javax.inject.Inject
+import javax.inject.Named
 
-class BGGRepositoryImpl(
+class BGGRepositoryImpl @Inject constructor(
     private val bggApi: BGGApi
 ) : BGGRepository {
 

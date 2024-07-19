@@ -48,7 +48,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -102,13 +101,17 @@ fun CreateMatchScreen(
     //lists
     val suggestionList by viewModel.suggestionList.collectAsState()
     val playerList by viewModel.playerList.collectAsState()
+    val friendsList by viewModel.friendsList.collectAsState()
 
     //toggles
     val toggleSuggestionList by viewModel.toggleSuggestionList.collectAsState()
     val toggleNoWinnerDialog by viewModel.toggleNoWinnerDialog.collectAsState()
-    var toggleNewPlayerWindow by remember { mutableStateOf(false) }
-    var toggleEditPlayerWindow by remember { mutableStateOf(false) }
-    var toggleConfirmDeleteWindow by remember { mutableStateOf(false) }
+    val toggleNotAUserDialog by viewModel.toggleNotAUserDialog.collectAsState()
+    val toggleNewPlayerWindow by viewModel.toggleNewPlayerWindow.collectAsState()
+    val toggleEditPlayerWindow by viewModel.toggleEditPlayerWindow.collectAsState()
+    val toggleConfirmDeleteDialog by viewModel.toggleConfirmDeleteDialog.collectAsState()
+
+
     var editIndex by remember { mutableIntStateOf(0) }
 
 
@@ -143,7 +146,7 @@ fun CreateMatchScreen(
             onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
             onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
             onClickSignOut = { navRoutes[LOGIN] },
-            onClickFriends = {navRoutes[FRIENDS]?.invoke()})
+            onClickFriends = { navRoutes[FRIENDS]?.invoke() })
         {
             Scaffold(
                 topBar = {
@@ -201,17 +204,17 @@ fun CreateMatchScreen(
                         )
                     }
 
-                    if (toggleConfirmDeleteWindow) {
+                    if (toggleConfirmDeleteDialog) {
 
                         AlertDialog(
                             title = { Text(text = "Delete player") },
                             text = { Text(text = "Do you want to delete player?") },
-                            onDismissRequest = { toggleConfirmDeleteWindow = false },
+                            onDismissRequest = { viewModel.toggleConfirmDeleteDialog(false) },
                             confirmButton = {
                                 TextButton(
                                     onClick = {
                                         viewModel.deletePlayer(playerList[editIndex])
-                                        toggleConfirmDeleteWindow = false
+                                        viewModel.toggleConfirmDeleteDialog(false)
                                     }) {
                                     Text(text = "Confirm")
                                 }
@@ -219,7 +222,7 @@ fun CreateMatchScreen(
                             dismissButton = {
                                 TextButton(
                                     onClick = {
-                                        toggleConfirmDeleteWindow = false
+                                        viewModel.toggleConfirmDeleteDialog(false)
                                     }) {
                                     Text(text = "Dismiss")
                                 }
@@ -232,28 +235,35 @@ fun CreateMatchScreen(
                         viewModel.clearInputs()
                         EditPlayerWindow(
                             viewModel = viewModel,
-                            onDismissRequest = { toggleNewPlayerWindow = false },
+                            onDismissRequest = { viewModel.toggleNewPlayerWindow(false) },
                             onConfirmation = {
                                 var updatedName = nameInput
                                 var updatedFaction = factionInput
-                                while (updatedName.isNotEmpty() && updatedName.last().isWhitespace()) {
+                                while (updatedName.isNotEmpty() && updatedName.last()
+                                        .isWhitespace()
+                                ) {
                                     updatedName = updatedName.dropLast(1)
                                 }
-                                while (updatedFaction.isNotEmpty() && updatedFaction.last().isWhitespace()) {
+                                while (updatedFaction.isNotEmpty() && updatedFaction.last()
+                                        .isWhitespace()
+                                ) {
                                     updatedFaction = updatedFaction.dropLast(1)
                                 }
-                                viewModel.addPlayer(
-                                    PlayerMatchData(
-                                        name = updatedName.ifEmpty { "Player ${editIndex + 1}" },
-                                        faction = updatedFaction,
-                                        score = scoreInput.ifBlank { "0" },
-                                        color = selectedColor?.toArgb()?.toString()
-                                            ?: Black.toArgb()
-                                                .toString()
+                                if (friendsList.contains(nameInput)) {
+                                    viewModel.addPlayer(
+                                        PlayerMatchData(
+                                            name = updatedName.ifEmpty { "Player ${editIndex + 1}" },
+                                            faction = updatedFaction,
+                                            score = scoreInput.ifBlank { "0" },
+                                            color = selectedColor?.toArgb()?.toString()
+                                                ?: Black.toArgb()
+                                                    .toString()
+                                        )
                                     )
-                                )
-                                toggleNewPlayerWindow = false
+                                    viewModel.toggleNewPlayerWindow(false)
+                                } else viewModel.toggleNotAUserDialog(true)
                             },
+                            friendsList = friendsList,
                             dialogTitle = "New player"
                         )
                     }
@@ -261,7 +271,7 @@ fun CreateMatchScreen(
                     if (toggleEditPlayerWindow) {
                         EditPlayerWindow(
                             viewModel = viewModel,
-                            onDismissRequest = { toggleEditPlayerWindow = false },
+                            onDismissRequest = { viewModel.toggleEditPlayerWindow(false) },
                             onConfirmation = {
                                 viewModel.editPlayer(
                                     editIndex, PlayerMatchData(
@@ -274,13 +284,60 @@ fun CreateMatchScreen(
                                         isWinner = playerList[editIndex].isWinner
                                     )
                                 )
-                                toggleEditPlayerWindow = false
+                                viewModel.toggleEditPlayerWindow(false)
                             },
+                            friendsList = friendsList,
                             dialogTitle = "Edit player",
                         )
                     }
 
-                    Text(modifier = Modifier.padding(), text = "Game:", fontSize = 22.sp)
+                    if (toggleNotAUserDialog) {
+                        AlertDialog(
+                            title = { Text(text = "Player is not a registered user") },
+                            text = { Text(text = "Do you want to add player as a guest?") },
+                            onDismissRequest = { viewModel.toggleNotAUserDialog(false) },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    var updatedName = nameInput
+                                    var updatedFaction = factionInput
+                                    while (updatedName.isNotEmpty() && updatedName.last()
+                                            .isWhitespace()
+                                    ) {
+                                        updatedName = updatedName.dropLast(1)
+                                    }
+                                    while (updatedFaction.isNotEmpty() && updatedFaction.last()
+                                            .isWhitespace()
+                                    ) {
+                                        updatedFaction = updatedFaction.dropLast(1)
+                                    }
+                                    viewModel.addPlayer(
+                                        PlayerMatchData(
+                                            name = updatedName.ifEmpty { "Player ${editIndex + 1}" } + " (guest)",
+                                            faction = updatedFaction,
+                                            score = scoreInput.ifBlank { "0" },
+                                            color = selectedColor?.toArgb()?.toString()
+                                                ?: Black.toArgb()
+                                                    .toString()
+                                        )
+                                    )
+                                    viewModel.toggleNotAUserDialog(false)
+                                    viewModel.toggleNewPlayerWindow(false)
+                                }) {
+                                    Text(text = "Confirm")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { viewModel.toggleNotAUserDialog(false) }) {
+                                    Text(text = "Dismiss")
+                                }
+                            })
+                    }
+
+                    Text(
+                        modifier = Modifier.padding(),
+                        text = "Game:",
+                        fontSize = 22.sp
+                    )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -347,9 +404,9 @@ fun CreateMatchScreen(
                         ) {
                             Spacer(modifier = Modifier.weight(16f))
                             Text(modifier = Modifier.weight(27.5f), text = "Name")
-                         //   Spacer(modifier = Modifier.weight(48.dp))
+                            //   Spacer(modifier = Modifier.weight(48.dp))
                             Text(modifier = Modifier.weight(32f), text = "Color/Faction")
-                           // Spacer(modifier = Modifier.weight(8.dp))
+                            // Spacer(modifier = Modifier.weight(8.dp))
                             Text(modifier = Modifier.weight(14f), text = "Score")
                             Spacer(modifier = Modifier.weight(20f))
                         }
@@ -362,7 +419,7 @@ fun CreateMatchScreen(
                                 onDeleteClick =
                                 {
                                     editIndex = playerList.indexOf(it)
-                                    toggleConfirmDeleteWindow = true
+                                    viewModel.toggleConfirmDeleteDialog(true)
                                 },
                                 onEditClick = {
                                     editIndex = playerList.indexOf(it)
@@ -371,9 +428,12 @@ fun CreateMatchScreen(
                                         it.faction,
                                         CreateMatchInputFields.ColorOrFaction
                                     )
-                                    viewModel.changeInput(it.score, CreateMatchInputFields.Score)
+                                    viewModel.changeInput(
+                                        it.score,
+                                        CreateMatchInputFields.Score
+                                    )
                                     viewModel.changeSelectedColor(Color(it.color.toInt()))
-                                    toggleEditPlayerWindow = true
+                                    viewModel.toggleEditPlayerWindow
                                 },
                                 onWinnerStarClick = {
                                     it.isWinner = !it.isWinner
@@ -389,7 +449,7 @@ fun CreateMatchScreen(
                         .size(36.dp)
                         .clip(CircleShape), onClick = {
                         editIndex = playerList.size
-                        toggleNewPlayerWindow = true
+                        viewModel.toggleNewPlayerWindow(true)
                     })
                     {
                         Icon(imageVector = Icons.Default.Add, contentDescription = "Add Icon")
@@ -412,7 +472,11 @@ fun CreateMatchScreen(
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .border(width = 0.5.dp, color = Black, shape = RectangleShape)
+                                    .border(
+                                        width = 0.5.dp,
+                                        color = Black,
+                                        shape = RectangleShape
+                                    )
                                     .clickable {
                                         viewModel.changeInput(
                                             it[0],

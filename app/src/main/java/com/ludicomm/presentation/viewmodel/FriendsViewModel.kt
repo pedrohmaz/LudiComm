@@ -2,6 +2,8 @@ package com.ludicomm.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.ListenerRegistration
+import com.ludicomm.data.model.User
 import com.ludicomm.data.repository.AuthRepository
 import com.ludicomm.data.repository.FirestoreRepository
 import com.ludicomm.util.stateHandlers.FriendsState
@@ -14,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FriendsViewModel @Inject constructor(
-    authRepository: AuthRepository,
+    private val authRepository: AuthRepository,
     private val firestoreRepository: FirestoreRepository
 ) : ViewModel() {
 
@@ -35,9 +37,49 @@ class FriendsViewModel @Inject constructor(
 
     val username = authRepository.currentUser()?.displayName ?: ""
 
+    private var listenerRegistration: ListenerRegistration? = null
+
+    private fun startListeningForChanges() {
+        viewModelScope.launch {
+            val documentRef = firestoreRepository.getDocument(
+                "users",
+                authRepository.currentUser()?.uid.toString()
+            )
+
+            listenerRegistration = documentRef.addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    return@addSnapshotListener
+                }
+                if (snapshot != null && snapshot.exists()) {
+
+                    val data = snapshot.data
+
+                    val receivedRequestList = data?.get("receivedRequestList") as? List<*>
+                    if (receivedRequestList != null && receivedRequestList.all { it is String }) {
+                        _receivedRequestList.value = receivedRequestList.filterIsInstance<String>()
+                    } else _receivedRequestList.value = listOf()
+
+                    val sentRequestList = data?.get("sentRequestList") as? List<*>
+                    if (sentRequestList != null && sentRequestList.all { it is String }) {
+                        _sentRequestList.value = sentRequestList.filterIsInstance<String>()
+                    } else _sentRequestList.value = listOf()
+
+                    val friendsList = data?.get("friendsList") as? List<*>
+                    if(friendsList != null && friendsList.all { it is String }) {
+                        _friendsList.value = friendsList.filterIsInstance<String>()
+                    } else _friendsList.value = listOf()
+
+                    updateCurrentUserData()
+                }
+            }
+        }
+    }
+
     init {
         updateCurrentUserData()
+        startListeningForChanges()
     }
+
 
     private fun updateCurrentUserData() {
         viewModelScope.launch {
@@ -70,7 +112,7 @@ class FriendsViewModel @Inject constructor(
         }
     }
 
-    fun dismissReceivedRequest(requestingUser:String){
+    fun dismissReceivedRequest(requestingUser: String) {
         viewModelScope.launch {
             firestoreRepository.deleteFriendRequest(requestingUser, username)
             updateCurrentUserData()
@@ -84,6 +126,7 @@ class FriendsViewModel @Inject constructor(
                 when (result) {
                     is Resource.Error -> _state.value =
                         FriendsState(isError = result.message.toString())
+
                     is Resource.Loading -> _state.value = FriendsState(isLoading = true)
                     is Resource.Success -> {
                         _state.value = FriendsState(isSuccess = "Request sent")
@@ -92,6 +135,11 @@ class FriendsViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        listenerRegistration?.remove()
     }
 
 }

@@ -1,5 +1,8 @@
 package com.ludicomm.data.repository.implementation
 
+import com.google.android.gms.tasks.Task
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
@@ -137,6 +140,9 @@ class FirestoreRepositoryImpl @Inject constructor(private val firestore: Firebas
         return if (user.isNotEmpty()) user[0] else return null
     }
 
+    override suspend fun getDocument(collection: String, document: String) : DocumentReference {
+        return firestore.collection(collection).document(document)
+    }
 
 }
 

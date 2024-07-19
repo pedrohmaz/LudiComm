@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ludicomm.data.model.Match
 import com.ludicomm.data.model.PlayerMatchData
+import com.ludicomm.data.repository.AuthRepository
 import com.ludicomm.data.repository.BGGRepository
 import com.ludicomm.data.repository.FirestoreRepository
 import com.ludicomm.util.CreateMatchInputFields
@@ -23,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateMatchViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
+    private val authRepository: AuthRepository,
     private val bggRepository: BGGRepository
 ) :
     ViewModel() {
@@ -60,9 +62,32 @@ class CreateMatchViewModel @Inject constructor(
     private val _toggleNoWinnerDialog = MutableStateFlow(false)
     val toggleNoWinnerDialog = _toggleNoWinnerDialog.asStateFlow()
 
+    private val _toggleNotAUserDialog = MutableStateFlow(false)
+    val toggleNotAUserDialog = _toggleNotAUserDialog.asStateFlow()
+
+    private val _toggleNewPlayerWindow = MutableStateFlow(false)
+    val toggleNewPlayerWindow = _toggleNewPlayerWindow.asStateFlow()
+
+    private val _toggleEditPlayerWindow = MutableStateFlow(false)
+    val toggleEditPlayerWindow = _toggleEditPlayerWindow.asStateFlow()
+
+    private val _toggleConfirmDeleteDialog = MutableStateFlow(false)
+    val toggleConfirmDeleteDialog = _toggleConfirmDeleteDialog.asStateFlow()
+
+    private val _friendsList = MutableStateFlow(listOf<String>())
+    val friendsList = _friendsList.asStateFlow()
+
     private var lastGameCLicked = ""
 
     private var onGoingQuery = false
+
+    init {
+        viewModelScope.launch {
+            _friendsList.value =
+                authRepository.currentUser()?.displayName?.let { firestoreRepository.getUser(it)?.friends }
+                    ?: listOf()
+        }
+    }
 
     fun setLastGameCLicked(string: String) {
         lastGameCLicked = string
@@ -112,8 +137,24 @@ class CreateMatchViewModel @Inject constructor(
         _toggleNoWinnerDialog.value = value
     }
 
-    fun toggleOnGoingQuery(state: Boolean) {
-        onGoingQuery = state
+    fun toggleNotAUserDialog(value: Boolean){
+        _toggleNotAUserDialog.value = value
+    }
+
+    fun toggleOnGoingQuery(value: Boolean) {
+        onGoingQuery = value
+    }
+
+    fun toggleNewPlayerWindow(value: Boolean) {
+        _toggleNewPlayerWindow.value = value
+    }
+
+    fun toggleEditPlayerWindow(value: Boolean) {
+        _toggleEditPlayerWindow.value = value
+    }
+
+    fun toggleConfirmDeleteDialog(value: Boolean) {
+        _toggleConfirmDeleteDialog.value = value
     }
 
     fun createBGGSuggestions() {
@@ -128,29 +169,28 @@ class CreateMatchViewModel @Inject constructor(
                     bggRepository.getBoardGames(_gameQueryInput.value).collect { result ->
                         when (result) {
                             is Resource.Success -> {
-                                    val gameList = mutableListOf<List<String>>()
-                                    val newList = mutableListOf<List<String>>()
-                                    var counter = 0
-                                    result.data?.boardGames?.forEach { boardGame ->
-                                        boardGame.name?.value?.let { value ->
-                                            gameList.add(listOf(value, boardGame.id ?: ""))
-                                        }
+                                val gameList = mutableListOf<List<String>>()
+                                val newList = mutableListOf<List<String>>()
+                                result.data?.boardGames?.forEach { boardGame ->
+                                    boardGame.name?.value?.let { value ->
+                                        gameList.add(listOf(value, boardGame.id ?: ""))
                                     }
-                                    gameList.sortBy { it[0].length }
-                                    val sortedGameList = gameList.take(8)
-                                    sortedGameList.forEach { listItem ->
-                                        val uri =
-                                            bggRepository.getBoardGame(listItem[1]).boardGames?.get(
-                                                0
-                                            )?.thumbnail
-                                                ?: ""
-                                        newList.add(listOf(listItem[0], uri))
-                                        _suggestionList.value = newList
-                                    }
-                                    _state.value =
-                                        CreateMatchState(isSuccess = result.message.toString())
-                                    onGoingQuery = false
                                 }
+                                gameList.sortBy { it[0].length }
+                                val sortedGameList = gameList.take(8)
+                                sortedGameList.forEach { listItem ->
+                                    val uri =
+                                        bggRepository.getBoardGame(listItem[1]).boardGames?.get(
+                                            0
+                                        )?.thumbnail
+                                            ?: ""
+                                    newList.add(listOf(listItem[0], uri))
+                                    _suggestionList.value = newList
+                                }
+                                _state.value =
+                                    CreateMatchState(isSuccess = result.message.toString())
+                                onGoingQuery = false
+                            }
 
                             is Resource.Error -> {
                                 _suggestionList.value = mutableListOf()

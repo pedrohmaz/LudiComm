@@ -1,13 +1,22 @@
 package com.ludicomm.presentation.components
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -15,12 +24,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -49,21 +60,29 @@ fun EditPlayerWindow(
     viewModel: CreateMatchViewModel,
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
+    friendsList: List<String>,
     dialogTitle: String,
 ) {
     val context = LocalContext.current
     Dialog(onDismissRequest) {
-
 
         val nameInput by viewModel.nameInput.collectAsState()
         val colorOrFactionInput by viewModel.colorOrFactionInput.collectAsState()
         val score by viewModel.scoreInput.collectAsState()
         val selectedColor: Color? by viewModel.selectedColor.collectAsState()
 
+        var friendSelected by remember { mutableStateOf("") }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 4.dp, vertical = 130.dp)
+                .padding(
+                    horizontal = 4.dp,
+                    vertical =
+                    if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
+                        130.dp
+                     else 0.dp
+                )
                 .clip(RoundedCornerShape(8))
                 .background(White),
             verticalArrangement = Arrangement.SpaceEvenly,
@@ -80,6 +99,28 @@ fun EditPlayerWindow(
                         text = "Player Name"
                     )
                 })
+
+            if (nameInput.isNotBlank() && friendSelected != nameInput) {
+                LazyColumn(
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(horizontal = 16.dp)
+                        .offset(y = (-16).dp)
+                        .background(MaterialTheme.colorScheme.secondary)
+                ) {
+                    items(friendsList) { friend ->
+                        if (friend.lowercase().contains(Regex(nameInput.lowercase()))) {
+                            Column(modifier = Modifier.clickable {
+                                viewModel.changeInput(friend, CreateMatchInputFields.Name)
+                                friendSelected = friend
+                            }) {
+                                Text(text = friend, color = White)
+                                HorizontalDivider()
+                            }
+                        }
+                    }
+                }
+            }
 
             OutlinedTextField(
                 value = colorOrFactionInput,

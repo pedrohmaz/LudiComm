@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
@@ -87,7 +89,10 @@ fun MainScreen(
                 }
 
             ) { innerPadding ->
-                Box (Modifier.fillMaxSize()){
+                Box (
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())){
                     Column(
                         Modifier
                             .fillMaxWidth()
@@ -145,7 +150,9 @@ fun MainScreen(
 
                     }
                     Button(
-                        modifier = Modifier.align(Alignment.BottomCenter).padding(vertical = 16.dp),
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(vertical = 16.dp),
                         onClick = { viewModel.signOut { navRoutes[LOGIN]?.invoke() } }) {
                         Text(text = "Sign out")
                     }
