@@ -65,6 +65,9 @@ class CreateMatchViewModel @Inject constructor(
     private val _toggleNotAUserDialog = MutableStateFlow(false)
     val toggleNotAUserDialog = _toggleNotAUserDialog.asStateFlow()
 
+    private val _toggleRepeatedPlayerDialog = MutableStateFlow(false)
+    val toggleRepeatedPlayerDialog = _toggleRepeatedPlayerDialog.asStateFlow()
+
     private val _toggleNewPlayerWindow = MutableStateFlow(false)
     val toggleNewPlayerWindow = _toggleNewPlayerWindow.asStateFlow()
 
@@ -77,6 +80,9 @@ class CreateMatchViewModel @Inject constructor(
     private val _friendsList = MutableStateFlow(listOf<String>())
     val friendsList = _friendsList.asStateFlow()
 
+    private val _currentUser = MutableStateFlow(authRepository.currentUser()?.displayName ?: "")
+    val currentUser = _currentUser.asStateFlow()
+
     private var lastGameCLicked = ""
 
     private var onGoingQuery = false
@@ -84,7 +90,7 @@ class CreateMatchViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             _friendsList.value =
-                authRepository.currentUser()?.displayName?.let { firestoreRepository.getUser(it)?.friends }
+                _currentUser.value.let { firestoreRepository.getUser(it)?.friends }
                     ?: listOf()
         }
     }
@@ -117,6 +123,11 @@ class CreateMatchViewModel @Inject constructor(
         _selectedColor.value = null
     }
 
+    fun addCurrentUserAsFriend() {
+        if (!_friendsList.value.contains(_currentUser.value))
+            _friendsList.value += _currentUser.value
+    }
+
     fun addPlayer(player: PlayerMatchData) {
         _playerList.value += player
     }
@@ -125,8 +136,8 @@ class CreateMatchViewModel @Inject constructor(
         _playerList.value[index] = newPlayer
     }
 
-    fun deletePlayer(player: PlayerMatchData) {
-        _playerList.value = _playerList.value.filter { it != player }.toMutableList()
+    fun deletePlayer(index: Int) {
+        _playerList.value.removeAt(index)
     }
 
     fun toggleSuggestionList(value: Boolean) {
@@ -137,8 +148,12 @@ class CreateMatchViewModel @Inject constructor(
         _toggleNoWinnerDialog.value = value
     }
 
-    fun toggleNotAUserDialog(value: Boolean){
+    fun toggleNotAUserDialog(value: Boolean) {
         _toggleNotAUserDialog.value = value
+    }
+
+    fun toggleRepeatedPlayerDialog(value: Boolean) {
+        _toggleRepeatedPlayerDialog.value = value
     }
 
     fun toggleOnGoingQuery(value: Boolean) {
@@ -244,6 +259,7 @@ class CreateMatchViewModel @Inject constructor(
                     val match = Match(
                         game = _gameQueryInput.value,
                         dateAndTime = System.currentTimeMillis().toString(),
+                        thumbnail = _gameThumbnail.value,
                         numberOfPlayers = _playerList.value.size,
                         playerNames = nameList.toList(),
                         winners = winnerList
@@ -274,6 +290,7 @@ class CreateMatchViewModel @Inject constructor(
             val match = Match(
                 game = _gameQueryInput.value,
                 dateAndTime = System.currentTimeMillis().toString(),
+                thumbnail = _gameThumbnail.value,
                 numberOfPlayers = _playerList.value.size,
                 playerNames = nameList.toList(),
                 winners = winnerList

@@ -2,6 +2,7 @@ package com.ludicomm.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.firestore.ListenerRegistration
 import com.ludicomm.data.model.User
 import com.ludicomm.data.repository.AuthRepository
@@ -35,9 +36,17 @@ class FriendsViewModel @Inject constructor(
     private val _state = MutableStateFlow(FriendsState())
     val state = _state.asStateFlow()
 
+    private val _toggleConfirmDeleteDialog = MutableStateFlow(Pair(false, ""))
+    val toggleConfirmDeleteDialog = _toggleConfirmDeleteDialog.asStateFlow()
+
     val username = authRepository.currentUser()?.displayName ?: ""
 
     private var listenerRegistration: ListenerRegistration? = null
+
+    init {
+        updateCurrentUserData()
+        startListeningForChanges()
+    }
 
     private fun startListeningForChanges() {
         viewModelScope.launch {
@@ -65,7 +74,7 @@ class FriendsViewModel @Inject constructor(
                     } else _sentRequestList.value = listOf()
 
                     val friendsList = data?.get("friendsList") as? List<*>
-                    if(friendsList != null && friendsList.all { it is String }) {
+                    if (friendsList != null && friendsList.all { it is String }) {
                         _friendsList.value = friendsList.filterIsInstance<String>()
                     } else _friendsList.value = listOf()
 
@@ -73,11 +82,6 @@ class FriendsViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    init {
-        updateCurrentUserData()
-        startListeningForChanges()
     }
 
 
@@ -94,6 +98,10 @@ class FriendsViewModel @Inject constructor(
 
     fun changeInput(value: String) {
         _userQueryInput.value = value
+    }
+
+    fun toggleConfirmDeleteDialog(boolean: Boolean, username: String) {
+        _toggleConfirmDeleteDialog.value = Pair(boolean, username)
     }
 
     fun acceptFriendRequest(requestingUser: String) {
@@ -136,6 +144,18 @@ class FriendsViewModel @Inject constructor(
             }
         }
     }
+
+    fun deleteFriend(username: String) {
+        viewModelScope.launch {
+                authRepository.currentUser()?.displayName?.let {
+                    firestoreRepository.deleteFriend(
+                        it,
+                        username
+                    )
+                }
+            }
+        }
+
 
     override fun onCleared() {
         super.onCleared()

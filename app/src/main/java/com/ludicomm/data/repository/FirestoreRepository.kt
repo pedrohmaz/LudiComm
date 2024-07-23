@@ -32,4 +32,6 @@ interface FirestoreRepository {
     suspend fun isRequestAlreadySent(username: String, currentUsername: String): Boolean
 
     suspend fun getDocument(collection: String, document: String): DocumentReference
+    suspend fun deleteMatch(dateAndTime: String)
+    suspend fun deleteFriend(currentUsername: String, username: String)
 }

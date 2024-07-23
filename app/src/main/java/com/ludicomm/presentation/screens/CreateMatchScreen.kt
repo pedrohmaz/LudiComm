@@ -75,6 +75,7 @@ import com.ludicomm.presentation.components.EditPlayerWindow
 import com.ludicomm.presentation.components.PlayerMatchDisplay
 import com.ludicomm.presentation.viewmodel.CreateMatchViewModel
 import com.ludicomm.util.CreateMatchInputFields
+import com.ludicomm.util.removeEndBlanks
 import com.ludicomm.util.stateHandlers.CreateMatchState
 import kotlinx.coroutines.launch
 
@@ -107,11 +108,13 @@ fun CreateMatchScreen(
     val toggleSuggestionList by viewModel.toggleSuggestionList.collectAsState()
     val toggleNoWinnerDialog by viewModel.toggleNoWinnerDialog.collectAsState()
     val toggleNotAUserDialog by viewModel.toggleNotAUserDialog.collectAsState()
+    val toggleRepeatedPlayerDialog by viewModel.toggleRepeatedPlayerDialog.collectAsState()
     val toggleNewPlayerWindow by viewModel.toggleNewPlayerWindow.collectAsState()
     val toggleEditPlayerWindow by viewModel.toggleEditPlayerWindow.collectAsState()
     val toggleConfirmDeleteDialog by viewModel.toggleConfirmDeleteDialog.collectAsState()
 
 
+    val currentUser by viewModel.currentUser.collectAsState()
     var editIndex by remember { mutableIntStateOf(0) }
 
 
@@ -145,7 +148,7 @@ fun CreateMatchScreen(
             onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
             onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
             onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
-            onClickSignOut = { navRoutes[LOGIN] },
+            onClickSignOut = { navRoutes[LOGIN]?.invoke() },
             onClickFriends = { navRoutes[FRIENDS]?.invoke() })
         {
             Scaffold(
@@ -204,8 +207,8 @@ fun CreateMatchScreen(
                         )
                     }
 
-                    if (toggleConfirmDeleteDialog) {
 
+                    if (toggleConfirmDeleteDialog) {
                         AlertDialog(
                             title = { Text(text = "Delete player") },
                             text = { Text(text = "Do you want to delete player?") },
@@ -213,7 +216,7 @@ fun CreateMatchScreen(
                             confirmButton = {
                                 TextButton(
                                     onClick = {
-                                        viewModel.deletePlayer(playerList[editIndex])
+                                        viewModel.deletePlayer(editIndex)
                                         viewModel.toggleConfirmDeleteDialog(false)
                                     }) {
                                     Text(text = "Confirm")
@@ -232,24 +235,14 @@ fun CreateMatchScreen(
                     }
 
                     if (toggleNewPlayerWindow) {
-                        viewModel.clearInputs()
                         EditPlayerWindow(
                             viewModel = viewModel,
                             onDismissRequest = { viewModel.toggleNewPlayerWindow(false) },
                             onConfirmation = {
-                                var updatedName = nameInput
-                                var updatedFaction = factionInput
-                                while (updatedName.isNotEmpty() && updatedName.last()
-                                        .isWhitespace()
-                                ) {
-                                    updatedName = updatedName.dropLast(1)
-                                }
-                                while (updatedFaction.isNotEmpty() && updatedFaction.last()
-                                        .isWhitespace()
-                                ) {
-                                    updatedFaction = updatedFaction.dropLast(1)
-                                }
-                                if (friendsList.contains(nameInput)) {
+                                val updatedName = removeEndBlanks(nameInput)
+                                val updatedFaction = removeEndBlanks(factionInput)
+                                if (friendsList.contains(nameInput) && !playerList.any { it.name == nameInput }
+                                    || nameInput == currentUser && !playerList.any { it.name == nameInput }) {
                                     viewModel.addPlayer(
                                         PlayerMatchData(
                                             name = updatedName.ifEmpty { "Player ${editIndex + 1}" },
@@ -260,8 +253,12 @@ fun CreateMatchScreen(
                                                     .toString()
                                         )
                                     )
+                                    viewModel.clearInputs()
                                     viewModel.toggleNewPlayerWindow(false)
-                                } else viewModel.toggleNotAUserDialog(true)
+                                } else if (!friendsList.contains(nameInput)) viewModel.toggleNotAUserDialog(
+                                    true
+                                )
+                                else viewModel.toggleRepeatedPlayerDialog(true)
                             },
                             friendsList = friendsList,
                             dialogTitle = "New player"
@@ -273,10 +270,12 @@ fun CreateMatchScreen(
                             viewModel = viewModel,
                             onDismissRequest = { viewModel.toggleEditPlayerWindow(false) },
                             onConfirmation = {
+                                val updatedName = removeEndBlanks(nameInput)
+                                val updatedFaction = removeEndBlanks(factionInput)
                                 viewModel.editPlayer(
                                     editIndex, PlayerMatchData(
-                                        name = nameInput.ifBlank { "Player ${editIndex + 1}" },
-                                        faction = factionInput,
+                                        name = updatedName.ifBlank { "Player ${editIndex + 1}" },
+                                        faction = updatedFaction,
                                         score = scoreInput.ifBlank { "0" },
                                         color = selectedColor?.toArgb()?.toString()
                                             ?: Black.toArgb()
@@ -284,6 +283,7 @@ fun CreateMatchScreen(
                                         isWinner = playerList[editIndex].isWinner
                                     )
                                 )
+                                viewModel.clearInputs()
                                 viewModel.toggleEditPlayerWindow(false)
                             },
                             friendsList = friendsList,
@@ -298,18 +298,8 @@ fun CreateMatchScreen(
                             onDismissRequest = { viewModel.toggleNotAUserDialog(false) },
                             confirmButton = {
                                 TextButton(onClick = {
-                                    var updatedName = nameInput
-                                    var updatedFaction = factionInput
-                                    while (updatedName.isNotEmpty() && updatedName.last()
-                                            .isWhitespace()
-                                    ) {
-                                        updatedName = updatedName.dropLast(1)
-                                    }
-                                    while (updatedFaction.isNotEmpty() && updatedFaction.last()
-                                            .isWhitespace()
-                                    ) {
-                                        updatedFaction = updatedFaction.dropLast(1)
-                                    }
+                                    val updatedName = removeEndBlanks(nameInput)
+                                    val updatedFaction = removeEndBlanks(factionInput)
                                     viewModel.addPlayer(
                                         PlayerMatchData(
                                             name = updatedName.ifEmpty { "Player ${editIndex + 1}" } + " (guest)",
@@ -322,12 +312,46 @@ fun CreateMatchScreen(
                                     )
                                     viewModel.toggleNotAUserDialog(false)
                                     viewModel.toggleNewPlayerWindow(false)
+                                    viewModel.clearInputs()
                                 }) {
                                     Text(text = "Confirm")
                                 }
                             },
                             dismissButton = {
                                 TextButton(onClick = { viewModel.toggleNotAUserDialog(false) }) {
+                                    Text(text = "Dismiss")
+                                }
+                            })
+                    }
+
+                    if (toggleRepeatedPlayerDialog) {
+                        AlertDialog(
+                            title = { Text(text = "Player is already registered") },
+                            text = { Text(text = "Do you want to add a copy of the player as a guest?") },
+                            onDismissRequest = { viewModel.toggleRepeatedPlayerDialog(false) },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    val updatedName = removeEndBlanks(nameInput)
+                                    val updatedFaction = removeEndBlanks(factionInput)
+                                    viewModel.addPlayer(
+                                        PlayerMatchData(
+                                            name = updatedName.ifEmpty { "Player ${editIndex + 1}" } + " (guest)",
+                                            faction = updatedFaction,
+                                            score = scoreInput.ifBlank { "0" },
+                                            color = selectedColor?.toArgb()?.toString()
+                                                ?: Black.toArgb()
+                                                    .toString()
+                                        )
+                                    )
+                                    viewModel.toggleRepeatedPlayerDialog(false)
+                                    viewModel.toggleNewPlayerWindow(false)
+                                    viewModel.clearInputs()
+                                }) {
+                                    Text(text = "Confirm")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { viewModel.toggleRepeatedPlayerDialog(false) }) {
                                     Text(text = "Dismiss")
                                 }
                             })
@@ -418,7 +442,6 @@ fun CreateMatchScreen(
                                 color = Color(it.color.toInt()),
                                 onDeleteClick =
                                 {
-                                    editIndex = playerList.indexOf(it)
                                     viewModel.toggleConfirmDeleteDialog(true)
                                 },
                                 onEditClick = {
@@ -433,7 +456,7 @@ fun CreateMatchScreen(
                                         CreateMatchInputFields.Score
                                     )
                                     viewModel.changeSelectedColor(Color(it.color.toInt()))
-                                    viewModel.toggleEditPlayerWindow
+                                    viewModel.toggleEditPlayerWindow(true)
                                 },
                                 onWinnerStarClick = {
                                     it.isWinner = !it.isWinner

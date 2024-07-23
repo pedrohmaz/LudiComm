@@ -72,6 +72,7 @@ fun EditPlayerWindow(
         val selectedColor: Color? by viewModel.selectedColor.collectAsState()
 
         var friendSelected by remember { mutableStateOf("") }
+        val currentUser by viewModel.currentUser.collectAsState()
 
         Column(
             modifier = Modifier
@@ -81,7 +82,7 @@ fun EditPlayerWindow(
                     vertical =
                     if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
                         130.dp
-                     else 0.dp
+                    else 0.dp
                 )
                 .clip(RoundedCornerShape(8))
                 .background(White),
@@ -101,6 +102,7 @@ fun EditPlayerWindow(
                 })
 
             if (nameInput.isNotBlank() && friendSelected != nameInput) {
+                viewModel.addCurrentUserAsFriend()
                 LazyColumn(
                     modifier = Modifier
                         .align(Alignment.Start)
@@ -114,7 +116,11 @@ fun EditPlayerWindow(
                                 viewModel.changeInput(friend, CreateMatchInputFields.Name)
                                 friendSelected = friend
                             }) {
-                                Text(text = friend, color = White)
+                                Text(
+                                    text = if (friend == currentUser) friend.plus(" (you)")
+                                    else friend,
+                                    color = White
+                                )
                                 HorizontalDivider()
                             }
                         }

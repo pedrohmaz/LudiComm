@@ -14,3 +14,13 @@ fun formatDate(timestamp: Long) : String {
 
 }
 
+fun removeEndBlanks(field: String): String {
+    var fieldCopy = field
+
+    while (fieldCopy.isNotEmpty() && fieldCopy.last()
+            .isWhitespace()
+    ) {
+        fieldCopy = fieldCopy.dropLast(1)
+    }
+    return fieldCopy
+}

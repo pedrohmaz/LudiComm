@@ -77,7 +77,10 @@ class FirestoreRepositoryImpl @Inject constructor(private val firestore: Firebas
                                     )
                                 val currentUserId = getUser(currentUsername)?.id ?: ""
                                 firestore.collection("users").document(currentUserId)
-                                    .update("pendingRequestsSent", FieldValue.arrayUnion(user.username))
+                                    .update(
+                                        "pendingRequestsSent",
+                                        FieldValue.arrayUnion(user.username)
+                                    )
                                 emit(Resource.Success(Unit))
                             } else emit(Resource.Error(message = "Request already sent"))
                         } else emit(Resource.Error(message = "User is already a friend"))
@@ -110,6 +113,14 @@ class FirestoreRepositoryImpl @Inject constructor(private val firestore: Firebas
             .update("pendingRequestsReceived", FieldValue.arrayRemove(requestingUser))
     }
 
+    override suspend fun deleteFriend(currentUsername: String, username: String) {
+        val currentUserId = getUser(currentUsername)?.id ?: ""
+        val otherUserId = getUser(username)?.id ?: ""
+        firestore.collection("users").document(currentUserId)
+            .update("friends", FieldValue.arrayRemove(username))
+        firestore.collection("users").document(otherUserId)
+            .update("friends", FieldValue.arrayRemove(currentUsername))
+    }
 
     override suspend fun isUsernameUsed(username: String): Boolean {
         val usernameList = mutableListOf<User>()
@@ -140,8 +151,19 @@ class FirestoreRepositoryImpl @Inject constructor(private val firestore: Firebas
         return if (user.isNotEmpty()) user[0] else return null
     }
 
-    override suspend fun getDocument(collection: String, document: String) : DocumentReference {
+    override suspend fun getDocument(collection: String, document: String): DocumentReference {
         return firestore.collection(collection).document(document)
+    }
+
+    override suspend fun deleteMatch(dateAndTime: String) {
+        val match =
+            firestore.collection("matches").whereEqualTo("dateAndTime", dateAndTime).get().await()
+        for (doc in match.documents) {
+            firestore.collection("matches")
+                .document(doc.id)
+                .delete()
+                .await()
+        }
     }
 
 }

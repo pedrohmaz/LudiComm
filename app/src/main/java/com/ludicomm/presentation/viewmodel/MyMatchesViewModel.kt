@@ -23,6 +23,9 @@ class MyMatchesViewModel @Inject constructor(
    private val _noMatches = MutableStateFlow(false)
     val noMatches = _noMatches.asStateFlow()
 
+    private val _toggleConfirmDeleteDialog = MutableStateFlow(Pair(false, ""))
+    val toggleConfirmDeleteDialog = _toggleConfirmDeleteDialog.asStateFlow()
+
     init {
         viewModelScope.launch {
            getAllUserMatches()
@@ -34,6 +37,17 @@ class MyMatchesViewModel @Inject constructor(
             firestoreRepository.getAllUserMatches(authRepository.currentUser()?.displayName.toString())
         _matchList.value = _matchList.value.sortedByDescending { it.dateAndTime }
         if (_matchList.value.isEmpty()) _noMatches.value = true
+    }
+
+    fun toggleConfirmDeleteDialog(boolean: Boolean, dateAndTime: String){
+        _toggleConfirmDeleteDialog.value = Pair(boolean, dateAndTime)
+    }
+
+    fun deleteMatch(dateAndTime: String) {
+        viewModelScope.launch {
+            firestoreRepository.deleteMatch(dateAndTime)
+            getAllUserMatches()
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package com.ludicomm.presentation.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -25,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
@@ -34,13 +38,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.ludicomm.presentation.components.CustomNavigationDrawer
 import com.ludicomm.presentation.viewmodel.MyMatchesViewModel
 import com.ludicomm.util.formatDate
@@ -57,6 +65,8 @@ fun MyMatchesScreen(
     val noMatches by viewModel.noMatches.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val toggleConfirmDeleteDialog by viewModel.toggleConfirmDeleteDialog.collectAsState()
 
     Surface {
         CustomNavigationDrawer(
@@ -66,7 +76,9 @@ fun MyMatchesScreen(
             onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
             onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
             onClickSignOut = { navRoutes[LOGIN] },
-            onClickFriends = { navRoutes[FRIENDS]?.invoke()}) {
+            onClickFriends = { navRoutes[FRIENDS]?.invoke() }) {
+
+
             Scaffold(
                 topBar = {
                     TopAppBar(title = { Text(text = "My Matches") }, navigationIcon = {
@@ -90,6 +102,27 @@ fun MyMatchesScreen(
                 }
 
             ) { innerPadding ->
+
+                if (toggleConfirmDeleteDialog.first) {
+                    AlertDialog(
+                        title = { Text(text = "Delete Match") },
+                        text = { Text(text = "Are you sure you want to delete this match?")},
+                        onDismissRequest = { viewModel.toggleConfirmDeleteDialog(false, "") },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                viewModel.deleteMatch(toggleConfirmDeleteDialog.second)
+                                viewModel.toggleConfirmDeleteDialog(false, "")
+                            }) {
+                                Text(text = "Confirm")
+                            }
+                        }, dismissButton = {
+                            TextButton(onClick = { viewModel.toggleConfirmDeleteDialog(false, "") }) {
+                                Text(text = "Dismiss")
+                            }
+                        }
+                    )
+                }
+
                 if (noMatches) Box(Modifier.fillMaxSize()) {
                     Text(
                         modifier = Modifier
@@ -116,37 +149,71 @@ fun MyMatchesScreen(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer
                             ), border = BorderStroke(1.dp, Black)
                         ) {
+
                             Column(Modifier.padding(8.dp)) {
                                 Text(text = match.game, fontSize = 18.sp)
-                                Text(
-                                    text = match.dateAndTime?.let { value ->
-                                        formatDate(
-                                            value.toLong()
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = formatDate(
+                                            match.dateAndTime.toLong()
                                         )
-                                    } ?: "no date info")
-                                HorizontalDivider(color = Black)
-                                Spacer(modifier = Modifier.height(16.dp))
-                                match.playerDataList.forEach { player ->
-                                    Row {
-                                        Text(text = "${player.name} - ")
-                                        Text(
-                                            text = player.faction,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(player.color.toInt())
+                                    )
+                                    IconButton(onClick = {
+                                        viewModel.toggleConfirmDeleteDialog(
+                                            true,
+                                            match.dateAndTime
                                         )
-                                        Text(text = " = ${player.score}")
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Delete match"
+                                        )
                                     }
                                 }
+                                HorizontalDivider(color = Black)
                                 Spacer(modifier = Modifier.height(16.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column {
+                                        match.playerDataList.forEach { player ->
+                                            Row {
+                                                Text(text = "${player.name} - ")
+                                                Text(
+                                                    text = player.faction,
+                                                    fontWeight = Bold,
+                                                    color = Color(player.color.toInt())
+                                                )
+                                                Text(text = " = ${player.score}")
+                                            }
+                                        }
+                                    }
+                                    AsyncImage(
+                                        modifier = Modifier
+                                            .scale(1.5f)
+                                            .padding(horizontal = 16.dp, vertical = 16.dp),
+                                        model = ImageRequest.Builder(context).data(match.thumbnail)
+                                            .build(),
+                                        contentDescription = "thumbnail"
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
                                 Row {
                                     Text(text = "Winner: ")
                                     match.winners.forEach { winner ->
                                         if (winner == match.winners[match.winners.size - 1]) Text(
-                                            text = winner, fontSize = 17.sp
+                                            text = winner,
+                                            fontSize = 17.sp,
+                                            fontWeight = FontWeight.SemiBold
                                         )
                                         else Text(
                                             text = "${match.winners[0]}, ",
-                                            fontSize = 17.sp
+                                            fontSize = 17.sp, fontWeight = FontWeight.SemiBold
                                         )
                                     }
                                 }
@@ -155,10 +222,7 @@ fun MyMatchesScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
-
-
             }
         }
-
     }
 }
