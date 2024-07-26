@@ -50,4 +50,9 @@ class MyMatchesViewModel @Inject constructor(
         }
     }
 
+    fun signOut(navigate: () -> Unit){
+        authRepository.signOutUser()
+        navigate()
+    }
+
 }

@@ -1,6 +1,8 @@
 package com.ludicomm.presentation.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -58,7 +62,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MyMatchesScreen(
     viewModel: MyMatchesViewModel = hiltViewModel(),
-    navRoutes: Map<String, () -> Unit>
+    navRoutes: Map<String, () -> Unit>,
+    onNavigateToGameStats: (gameName: String, gameUri: String) -> Unit
 ) {
 
     val matchList by viewModel.matchList.collectAsState()
@@ -76,8 +81,8 @@ fun MyMatchesScreen(
             onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
             onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
             onClickSignOut = { navRoutes[LOGIN] },
-            onClickFriends = { navRoutes[FRIENDS]?.invoke() }) {
-
+            onClickFriends = { viewModel.signOut { navRoutes[FRIENDS]?.invoke() } })
+        {
 
             Scaffold(
                 topBar = {
@@ -106,7 +111,7 @@ fun MyMatchesScreen(
                 if (toggleConfirmDeleteDialog.first) {
                     AlertDialog(
                         title = { Text(text = "Delete Match") },
-                        text = { Text(text = "Are you sure you want to delete this match?")},
+                        text = { Text(text = "Are you sure you want to delete this match?") },
                         onDismissRequest = { viewModel.toggleConfirmDeleteDialog(false, "") },
                         confirmButton = {
                             TextButton(onClick = {
@@ -116,7 +121,12 @@ fun MyMatchesScreen(
                                 Text(text = "Confirm")
                             }
                         }, dismissButton = {
-                            TextButton(onClick = { viewModel.toggleConfirmDeleteDialog(false, "") }) {
+                            TextButton(onClick = {
+                                viewModel.toggleConfirmDeleteDialog(
+                                    false,
+                                    ""
+                                )
+                            }) {
                                 Text(text = "Dismiss")
                             }
                         }
@@ -151,7 +161,14 @@ fun MyMatchesScreen(
                         ) {
 
                             Column(Modifier.padding(8.dp)) {
-                                Text(text = match.game, fontSize = 18.sp)
+                                // TextButton(onClick = { onNavigateToGameStats(match.game, match.thumbnail ?: "no_image") }) {
+                                Text(modifier = Modifier.clickable {
+                                    onNavigateToGameStats(
+                                        match.game,
+                                        match.thumbnail ?: "no_image"
+                                    )
+                                }, text = match.game, fontSize = 18.sp)
+                                //   }
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,

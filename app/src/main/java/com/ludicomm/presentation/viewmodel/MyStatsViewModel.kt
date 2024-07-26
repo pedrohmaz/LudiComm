@@ -43,7 +43,7 @@ val chartColorList = listOf(
 @HiltViewModel
 class MyStatsViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
-    authRepository: AuthRepository
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     private val _matchList = MutableStateFlow(listOf<Match>())
@@ -195,7 +195,7 @@ class MyStatsViewModel @Inject constructor(
         val gameChartSliceList = mutableListOf<PieChartData.Slice>()
         for (i in 0..<_gamesMostPlayed.value.size) {
             if (i < 10) {
-                val ellipsis = if(_gamesMostPlayed.value[i].first.length > 15) "..." else ""
+                val ellipsis = if (_gamesMostPlayed.value[i].first.length > 15) "..." else ""
                 gameChartSliceList.add(
                     PieChartData.Slice(
                         "${_gamesMostPlayed.value[i].first.take(15)}$ellipsis",
@@ -213,7 +213,7 @@ class MyStatsViewModel @Inject constructor(
         val playerChartSliceList = mutableListOf<PieChartData.Slice>()
         for (i in 0..<_playersMostPlayed.value.size) {
             if (i < 10) {
-                val ellipsis = if(_playersMostPlayed.value[i].first.length > 15) "..." else ""
+                val ellipsis = if (_playersMostPlayed.value[i].first.length > 15) "..." else ""
                 playerChartSliceList.add(
                     PieChartData.Slice(
                         "${_playersMostPlayed.value[i].first.take(15)}$ellipsis",
@@ -227,6 +227,11 @@ class MyStatsViewModel @Inject constructor(
             playerChartSliceList,
             plotType = PlotType.Pie
         )
+    }
+
+    fun signOut(navigate: () -> Unit) {
+        authRepository.signOutUser()
+        navigate()
     }
 
 }

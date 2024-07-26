@@ -58,6 +58,13 @@ class FirestoreRepositoryImpl @Inject constructor(private val firestore: Firebas
             .await().toObjects<Match>()
     }
 
+    override suspend fun getAllUserGameMatches(user: String, game: String): List<Match> {
+        return firestore.collection("matches")
+            .whereEqualTo("game", game)
+            .whereArrayContains("playerNames", user).get()
+            .await().toObjects<Match>()
+    }
+
     override suspend fun requestFriend(
         username: String,
         currentUsername: String

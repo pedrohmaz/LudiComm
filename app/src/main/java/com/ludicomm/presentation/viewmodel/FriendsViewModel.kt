@@ -156,10 +156,14 @@ class FriendsViewModel @Inject constructor(
             }
         }
 
-
     override fun onCleared() {
         super.onCleared()
         listenerRegistration?.remove()
+    }
+
+    fun signOut(navigate: () -> Unit){
+        authRepository.signOutUser()
+        navigate()
     }
 
 }

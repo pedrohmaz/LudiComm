@@ -148,7 +148,7 @@ fun CreateMatchScreen(
             onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
             onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
             onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
-            onClickSignOut = { navRoutes[LOGIN]?.invoke() },
+            onClickSignOut = { viewModel.signOut { navRoutes[LOGIN]?.invoke() } },
             onClickFriends = { navRoutes[FRIENDS]?.invoke() })
         {
             Scaffold(

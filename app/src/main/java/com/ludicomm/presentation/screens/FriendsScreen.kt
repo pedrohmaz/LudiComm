@@ -80,7 +80,7 @@ fun FriendsScreen(
             onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
             onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
             onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
-            onClickSignOut = { navRoutes[LOGIN]?.invoke() },
+            onClickSignOut = { viewModel.signOut { navRoutes[LOGIN]?.invoke() } },
             onClickFriends = { navRoutes[FRIENDS]?.invoke() })
         {
             Scaffold(
@@ -118,7 +118,7 @@ fun FriendsScreen(
                 if (toggleConfirmDeleteDialog.first) {
                     AlertDialog(
                         title = { Text(text = "Delete Friend") },
-                        text = { Text(text = "Are you sure you want to delete this friend?")},
+                        text = { Text(text = "Are you sure you want to delete this friend?") },
                         onDismissRequest = { viewModel.toggleConfirmDeleteDialog(false, "") },
                         confirmButton = {
                             TextButton(onClick = {
@@ -128,7 +128,12 @@ fun FriendsScreen(
                                 Text(text = "Confirm")
                             }
                         }, dismissButton = {
-                            TextButton(onClick = { viewModel.toggleConfirmDeleteDialog(false, "") }) {
+                            TextButton(onClick = {
+                                viewModel.toggleConfirmDeleteDialog(
+                                    false,
+                                    ""
+                                )
+                            }) {
                                 Text(text = "Dismiss")
                             }
                         }
@@ -238,14 +243,19 @@ fun FriendsScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     if (friendsList.isEmpty()) Text(text = "forever alone :(", fontSize = 15.sp)
                     LazyColumn {
-                        items(friendsList) {friend ->
+                        items(friendsList) { friend ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(text = friend, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                                IconButton(onClick = { viewModel.toggleConfirmDeleteDialog(true, friend) }) {
+                                IconButton(onClick = {
+                                    viewModel.toggleConfirmDeleteDialog(
+                                        true,
+                                        friend
+                                    )
+                                }) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
                                         contentDescription = "Delete friend"
