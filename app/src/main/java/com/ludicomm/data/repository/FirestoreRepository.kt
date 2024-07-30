@@ -36,5 +36,4 @@ interface FirestoreRepository {
 
     suspend fun deleteFriend(currentUsername: String, username: String)
 
-
 }

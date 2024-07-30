@@ -24,3 +24,11 @@ fun removeEndBlanks(field: String): String {
     }
     return fieldCopy
 }
+
+fun Float.formatDecimal(): String {
+    return if (this % 1f == 0.0f) {
+        this.toInt().toString()
+    } else {
+        String.format(Locale.getDefault(),"%.1f", this)
+    }
+}

@@ -1,17 +1,23 @@
 package com.ludicomm.presentation.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +42,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ludicomm.presentation.components.CustomNavigationDrawer
+import com.ludicomm.presentation.theme.GreyPlayer
+import com.ludicomm.presentation.theme.OrangePlayer
+import com.ludicomm.presentation.theme.YellowPlayer
 import com.ludicomm.presentation.viewmodel.GameStatsViewModel
 import kotlinx.coroutines.launch
 
@@ -51,10 +61,12 @@ fun GameStatsScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val matchList by viewModel.matchList.collectAsState()
+    val winnerList by viewModel.winnerList.collectAsState()
 
     LaunchedEffect(key1 = Unit) {
         viewModel.getGame(gameName)
         viewModel.getAllUserGameMatches()
+        viewModel.computeWinsPerPlayer()
     }
 
     Surface {
@@ -90,30 +102,87 @@ fun GameStatsScreen(
                 }
 
             ) { innerPadding ->
-                Column(modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(8.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(8.dp)
                 ) {
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = gameName, fontSize = 22.sp)
-                        if (gameUri != "no_image") {
-                            AsyncImage(
-                                modifier = Modifier.scale(2f).offset(x = (-28).dp, y = 16.dp),
-                                model = ImageRequest.Builder(context).data(gameUri).build(),
-                                contentDescription = "thumbnail"
-                            )
+                    Text(text = gameName, fontSize = 22.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    HorizontalDivider()
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(text = "Games played: ${matchList.size}")
+                                Text(text = "Games won: ${viewModel.computeTotalWins()}")
+                                Text(text = "Average score: ${viewModel.computeAveragePoints()}")
+                                Text(text = "Best score: " + if (matchList.isNotEmpty()) "${viewModel.getBestScore()}" else "-")
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(text = "Best players: ", fontSize = 18.sp)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                if (winnerList.isNotEmpty()) {
+                                    Row {
+                                        Icon(
+                                            imageVector = Icons.Default.Star,
+                                            tint = YellowPlayer,
+                                            contentDescription = "Star Icon"
+                                        )
+                                        Spacer(modifier = Modifier.width(16.dp))
+                                        Text(
+                                            text = if (winnerList[0].second == 0) "No player"
+                                            else "${winnerList[0].first} (${winnerList[0].second} win" +
+                                                    if (winnerList[0].second > 1) "s)" else ")"
+                                        )
+                                    }
+                                    Row {
+                                        Icon(
+                                            imageVector = Icons.Default.Star,
+                                            tint = GreyPlayer,
+                                            contentDescription = "Star Icon"
+                                        )
+                                        Spacer(modifier = Modifier.width(16.dp))
+                                        Text(
+                                            text = if (winnerList.size < 2 || winnerList[1].second == 0) "No player"
+                                            else "${winnerList[1].first} (${winnerList[1].second} win" +
+                                                    if (winnerList[1].second > 1) "s)" else ")"
+                                        )
+                                    }
+                                    Row {
+                                        Icon(
+                                            imageVector = Icons.Default.Star,
+                                            tint = OrangePlayer,
+                                            contentDescription = "Star Icon"
+                                        )
+                                        Spacer(modifier = Modifier.width(16.dp))
+                                        Text(
+                                            text = if (winnerList.size < 3 || winnerList[2].second == 0) "No player"
+                                            else "${winnerList[2].first} (${winnerList[2].second} win" +
+                                                    if (winnerList[2].second > 1) "s)" else ")"
+                                        )
+                                    }
+                                }
+                            }
+                            if (gameUri != "no_image") {
+                                AsyncImage(
+                                    modifier = Modifier
+                                        .scale(2f)
+                                        .offset(x = (-28).dp),
+                                    model = ImageRequest.Builder(context).data(gameUri)
+                                        .build(),
+                                    contentDescription = "thumbnail"
+                                )
+                            }
                         }
                     }
-                    Text(text = "Games Played: ${matchList.size}", fontSize = 18.sp)
-                    Text(text = "Games Won: ${viewModel.computeTotalWins()}", fontSize = 18.sp)
                 }
             }
         }
     }
-
 
 }
