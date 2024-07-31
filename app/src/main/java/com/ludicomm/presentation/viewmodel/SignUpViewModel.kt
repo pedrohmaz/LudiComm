@@ -64,7 +64,7 @@ class SignUpViewModel @Inject constructor(
                                     is Resource.Success -> {
                                         firestoreRepository.registerUser(
                                             authRepository.currentUser()?.uid.toString(),
-                                            username
+                                            username, email
                                         ).collect { firestoreResult ->
                                             if (firestoreResult is Resource.Success) {
                                                 _signUpState.value =

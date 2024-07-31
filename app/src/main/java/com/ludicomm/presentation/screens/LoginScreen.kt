@@ -1,7 +1,9 @@
 package com.ludicomm.presentation.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -24,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -36,6 +40,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -54,7 +59,8 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateToSignUp: () -> Unit,
-    onNavigateToMain: () -> Unit
+    onNavigateToMain: () -> Unit,
+    onNavigateToPasswordRetrieve: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -143,17 +149,19 @@ fun LoginScreen(
                     Text(text = "Login")
                 }
 
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.Bottom
+                        .padding(8.dp)
                 ) {
-                    FloatingActionButton(onClick = { onNavigateToSignUp() }) {
+                    TextButton(modifier = Modifier.align(Alignment.BottomCenter), onClick = { onNavigateToPasswordRetrieve() }) {
+                        Text(text = "I forgot my password")
+                    }
+                    FloatingActionButton(modifier = Modifier.align(Alignment.BottomEnd), onClick = { onNavigateToSignUp() }) {
                         Icon(imageVector = Icons.Default.Add, contentDescription = "Add New User")
                     }
                 }
+
 
                 LaunchedEffect(key1 = state) {
                     if (state.isSuccess?.isNotEmpty() == true) onNavigateToMain()

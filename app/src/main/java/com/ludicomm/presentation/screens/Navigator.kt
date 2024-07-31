@@ -19,6 +19,7 @@ const val MY_MATCHES = "my_matches"
 const val MY_STATS = "my_stats"
 const val FRIENDS = "friends"
 const val GAME_STATS = "game_stats/{gameName}/{gameUri}"
+const val PASSWORD_RETRIEVE = "password_retrieve"
 
 
 @Composable
@@ -35,17 +36,26 @@ fun Navigator(
         MY_MATCHES to { navController.navigate(MY_MATCHES) },
         MY_STATS to { navController.navigate(MY_STATS) },
         FRIENDS to { navController.navigate(FRIENDS) },
+        PASSWORD_RETRIEVE to {navController.navigate(PASSWORD_RETRIEVE)}
+
     )
 
     NavHost(navController = navController, startDestination = LOGIN) {
         composable(LOGIN) {
             LoginScreen(
                 onNavigateToSignUp = { navController.navigate(SIGNUP) },
-                onNavigateToMain = { navController.navigate(MAIN) }
+                onNavigateToMain = { navController.navigate(MAIN) },
+                onNavigateToPasswordRetrieve = {navController.navigate(PASSWORD_RETRIEVE)}
+
             )
         }
         composable(SIGNUP) {
             SignUpScreen {
+                navController.navigate(LOGIN)
+            }
+        }
+        composable(PASSWORD_RETRIEVE){
+            PasswordRetrieveScreen {
                 navController.navigate(LOGIN)
             }
         }

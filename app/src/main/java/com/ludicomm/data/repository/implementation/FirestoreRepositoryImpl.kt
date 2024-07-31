@@ -12,6 +12,7 @@ import com.ludicomm.data.model.Match
 import com.ludicomm.data.model.User
 import com.ludicomm.data.repository.FirestoreRepository
 import com.ludicomm.util.stateHandlers.Resource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -20,9 +21,13 @@ import javax.inject.Inject
 
 class FirestoreRepositoryImpl @Inject constructor(private val firestore: FirebaseFirestore) :
     FirestoreRepository {
-    override suspend fun registerUser(id: String, username: String): Flow<Resource<Unit>> {
+    override suspend fun registerUser(
+        id: String,
+        username: String,
+        email: String
+    ): Flow<Resource<Unit>> {
         if (!isUsernameUsed(username)) {
-            val user = User(id, username, username.lowercase())
+            val user = User(id, email, username, username.lowercase())
             return flow {
                 try {
                     firestore.collection("users").document(id).set(user).await()
@@ -171,6 +176,12 @@ class FirestoreRepositoryImpl @Inject constructor(private val firestore: Firebas
                 .delete()
                 .await()
         }
+    }
+
+    override suspend fun toggleConfirmPassword(email: String, value: Boolean) {
+        val user = firestore.collection("users").whereEqualTo("email", email)
+            .get().await().toObjects<User>()
+        firestore.collection("users").document(user[0].id).update("confirmPassword", value)
     }
 
 }

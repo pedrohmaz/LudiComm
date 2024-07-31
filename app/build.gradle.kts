@@ -123,6 +123,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth:23.0.0")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     //YCharts
     implementation ("co.yml:ycharts:2.1.0")

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface FirestoreRepository {
 
-    suspend fun registerUser(id: String, username: String): Flow<Resource<Unit>>
+    suspend fun registerUser(id: String, username: String, email: String): Flow<Resource<Unit>>
 
     suspend fun submitMatch(match: Match): Flow<Resource<Unit>>
 
@@ -36,4 +36,5 @@ interface FirestoreRepository {
 
     suspend fun deleteFriend(currentUsername: String, username: String)
 
+    suspend fun toggleConfirmPassword(email: String, value: Boolean)
 }

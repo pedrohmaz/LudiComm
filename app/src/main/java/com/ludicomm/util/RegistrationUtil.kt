@@ -1,5 +1,6 @@
 package com.ludicomm.util
 
+import android.util.Log
 import com.ludicomm.data.model.PlayerMatchData
 import com.ludicomm.util.stateHandlers.Resource
 import kotlinx.coroutines.flow.Flow
@@ -46,6 +47,38 @@ object RegistrationUtil {
                 emit(Resource.Error(CONFIRM_PASSWORD_MESSAGE))
             }
             if (success) emit(Resource.Success(Unit))
+        }
+    }
+
+    suspend fun validateNewPassword(
+        password: String,
+        confirmPassword: String
+    ): Flow<Resource<Unit>> {
+        return flow {
+            Log.i("TAG", "Validating password: $password, confirmPassword: $confirmPassword")
+
+            when {
+                !password.contains("[A-Z]".toRegex()) -> {
+                    Log.i("TAG", "Password validation failed: no uppercase letter")
+                    emit(Resource.Error(PASSWORD_RULES_MESSAGE))
+                }
+                password.length !in 6..10 -> {
+                    Log.i("TAG", "Password validation failed: incorrect length")
+                    emit(Resource.Error(PASSWORD_RULES_MESSAGE))
+                }
+                !password.contains("[0-9]".toRegex()) -> {
+                    Log.i("TAG", "Password validation failed: no digit")
+                    emit(Resource.Error(PASSWORD_RULES_MESSAGE))
+                }
+                password != confirmPassword -> {
+                    Log.i("TAG", "Password validation failed: passwords do not match")
+                    emit(Resource.Error(CONFIRM_PASSWORD_MESSAGE))
+                }
+                else -> {
+                    Log.i("TAG", "Password validation succeeded")
+                    emit(Resource.Success(Unit))
+                }
+            }
         }
     }
 
