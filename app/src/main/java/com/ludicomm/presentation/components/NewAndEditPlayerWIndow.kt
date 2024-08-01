@@ -92,6 +92,7 @@ fun EditPlayerWindow(
             Text(text = dialogTitle, fontSize = 24.sp)
 
             OutlinedTextField(value = nameInput,
+                singleLine = true,
                 onValueChange = {
                     viewModel.changeInput(it, CreateMatchInputFields.Name)
                 },
@@ -141,6 +142,7 @@ fun EditPlayerWindow(
                     selectedColor ?: Black,
                     selectedColor ?: Black
                 ),
+                singleLine = true,
                 label = {
                     Text(
                         text = "Color or Faction"
@@ -236,6 +238,7 @@ fun EditPlayerWindow(
             OutlinedTextField(
                 value = score,
                 onValueChange = { viewModel.changeInput(it, CreateMatchInputFields.Score) },
+                singleLine = true,
                 label = {
                     Text(
                         text = "Score"

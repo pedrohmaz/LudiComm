@@ -65,11 +65,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ludicomm.R
 import com.ludicomm.data.model.PlayerMatchData
-import com.ludicomm.presentation.components.CustomNavigationDrawer
+import com.ludicomm.presentation.components.ImmutableNavigationDrawer
 import com.ludicomm.presentation.components.CustomTextField
 import com.ludicomm.presentation.components.EditPlayerWindow
 import com.ludicomm.presentation.components.PlayerMatchDisplay
@@ -84,7 +85,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CreateMatchScreen(
     viewModel: CreateMatchViewModel = hiltViewModel(),
-    navRoutes: Map<String, () -> Unit>
+    navController: NavController
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
@@ -136,20 +137,17 @@ fun CreateMatchScreen(
                 state.isSuccess,
                 Toast.LENGTH_SHORT
             ).show()
-            navRoutes[MAIN]?.invoke()
+            navController.navigate(MAIN)
             viewModel.resetState()
         }
     }
 
     Surface {
-        CustomNavigationDrawer(
+        ImmutableNavigationDrawer(
             drawerState = drawerState,
-            onClickMain = { navRoutes[MAIN]?.invoke() },
-            onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
-            onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
-            onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
-            onClickSignOut = { viewModel.signOut { navRoutes[LOGIN]?.invoke() } },
-            onClickFriends = { navRoutes[FRIENDS]?.invoke() })
+            navController = navController,
+            signOutFunction = { viewModel.signOut { navController.navigate(LOGIN) } }
+        )
         {
             Scaffold(
                 topBar = {

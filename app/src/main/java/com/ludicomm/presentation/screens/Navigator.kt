@@ -28,18 +28,6 @@ fun Navigator(
     authRepository: AuthRepository
 ) {
 
-    val navRoutes = mapOf(
-        LOGIN to { navController.navigate(LOGIN) },
-        SIGNUP to { navController.navigate(SIGNUP) },
-        MAIN to { navController.navigate(MAIN) },
-        CREATE_MATCH to { navController.navigate(CREATE_MATCH) },
-        MY_MATCHES to { navController.navigate(MY_MATCHES) },
-        MY_STATS to { navController.navigate(MY_STATS) },
-        FRIENDS to { navController.navigate(FRIENDS) },
-        PASSWORD_RETRIEVE to {navController.navigate(PASSWORD_RETRIEVE)}
-
-    )
-
     NavHost(navController = navController, startDestination = LOGIN) {
         composable(LOGIN) {
             LoginScreen(
@@ -62,14 +50,14 @@ fun Navigator(
         composable(MAIN) {
             AuthGuard(authRepository, navHostController = navController) {
                 MainScreen(
-                    navRoutes = navRoutes
+                    navController = navController
                 )
             }
         }
         composable(CREATE_MATCH) {
             AuthGuard(authRepository = authRepository, navHostController = navController) {
                 CreateMatchScreen(
-                    navRoutes = navRoutes
+                    navController = navController
                 )
             }
         }
@@ -78,7 +66,7 @@ fun Navigator(
         ) {
             AuthGuard(authRepository = authRepository, navHostController = navController) {
                 MyMatchesScreen(
-                    navRoutes = navRoutes,
+                    navController = navController,
                     onNavigateToGameStats = { gameName, gameUri ->
                         val encodedUri = URLEncoder.encode(gameUri, "UTF-8")
                         navController.navigate("game_stats/$gameName/$encodedUri")
@@ -89,14 +77,14 @@ fun Navigator(
         composable(MY_STATS) {
             AuthGuard(authRepository = authRepository, navHostController = navController) {
                 MyStatsScreen(
-                    navRoutes = navRoutes
+                    navController = navController
                 )
             }
         }
         composable(FRIENDS) {
             AuthGuard(authRepository = authRepository, navHostController = navController) {
                 FriendsScreen(
-                    navRoutes = navRoutes
+                    navController = navController
                 )
             }
         }
@@ -110,7 +98,7 @@ fun Navigator(
                 val gameName = backStackEntry.arguments?.getString("gameName") ?: ""
                 val gameUri: String = backStackEntry.arguments?.getString("gameUri") ?: ""
                 GameStatsScreen(
-                    navRoutes = navRoutes,
+                    navController = navController,
                     gameName = gameName,
                     gameUri = gameUri
                 )

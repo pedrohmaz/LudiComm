@@ -1,7 +1,6 @@
 package com.ludicomm.presentation.screens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,17 +42,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.Green
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.ludicomm.presentation.components.CustomNavigationDrawer
+import com.ludicomm.presentation.components.ImmutableNavigationDrawer
 import com.ludicomm.presentation.viewmodel.MyMatchesViewModel
 import com.ludicomm.util.formatDate
 import kotlinx.coroutines.launch
@@ -62,7 +60,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MyMatchesScreen(
     viewModel: MyMatchesViewModel = hiltViewModel(),
-    navRoutes: Map<String, () -> Unit>,
+    navController: NavController,
     onNavigateToGameStats: (gameName: String, gameUri: String) -> Unit
 ) {
 
@@ -74,16 +72,11 @@ fun MyMatchesScreen(
     val toggleConfirmDeleteDialog by viewModel.toggleConfirmDeleteDialog.collectAsState()
 
     Surface {
-        CustomNavigationDrawer(
+        ImmutableNavigationDrawer(
             drawerState = drawerState,
-            onClickMain = { navRoutes[MAIN]?.invoke() },
-            onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
-            onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
-            onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
-            onClickSignOut = { navRoutes[LOGIN] },
-            onClickFriends = { viewModel.signOut { navRoutes[FRIENDS]?.invoke() } })
+            navController = navController,
+            signOutFunction = { viewModel.signOut { navController.navigate(LOGIN) } })
         {
-
             Scaffold(
                 topBar = {
                     TopAppBar(title = { Text(text = "My Matches") }, navigationIcon = {

@@ -116,6 +116,7 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), onNavigateToLogin
                     value = passwordInput,
                     visualTransformation = if (!showPassword) PasswordVisualTransformation()
                     else VisualTransformation.None,
+                    singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Next
@@ -129,6 +130,7 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), onNavigateToLogin
                     value = confirmPasswordInput,
                     visualTransformation = if (!showPassword) PasswordVisualTransformation()
                     else VisualTransformation.None,
+                    singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Next

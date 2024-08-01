@@ -1,6 +1,5 @@
 package com.ludicomm.presentation.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ludicomm.data.model.BoardGames
@@ -46,12 +45,13 @@ class MainViewModel @Inject constructor(
     private val _isPasswordConfirmationNeeded = MutableStateFlow(false)
     val isPasswordConfirmationNeeded = _isPasswordConfirmationNeeded.asStateFlow()
 
-    private val _state = MutableStateFlow(SignUpState())
+    private val _state = MutableStateFlow(SignUpState(isLoading = true))
     val state = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
             isPasswordConfirmationNeeded()
+            _state.value = SignUpState(isLoading = false)
         }
     }
 
@@ -108,8 +108,8 @@ class MainViewModel @Inject constructor(
 
     fun submitNewPassword() {
         viewModelScope.launch {
-            val newPassword = _newPasswordInput.value ?: ""
-            val confirmPassword = _confirmNewPasswordInput.value ?: ""
+            val newPassword = _newPasswordInput.value
+            val confirmPassword = _confirmNewPasswordInput.value
 
             RegistrationUtil.validateNewPassword(newPassword, confirmPassword).collect { result ->
 

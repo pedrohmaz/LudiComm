@@ -1,8 +1,6 @@
 package com.ludicomm.data.repository.implementation
 
-import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
@@ -12,7 +10,6 @@ import com.ludicomm.data.model.Match
 import com.ludicomm.data.model.User
 import com.ludicomm.data.repository.FirestoreRepository
 import com.ludicomm.util.stateHandlers.Resource
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf

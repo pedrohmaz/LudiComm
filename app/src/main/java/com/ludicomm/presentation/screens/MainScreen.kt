@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -36,7 +37,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ludicomm.presentation.components.CustomNavigationDrawer
+import androidx.navigation.NavController
+import com.ludicomm.presentation.components.ImmutableNavigationDrawer
 import com.ludicomm.presentation.components.CustomTextField
 import com.ludicomm.presentation.viewmodel.MainViewModel
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +50,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun MainScreen(
     viewModel: MainViewModel = hiltViewModel(),
-    navRoutes: Map<String, () -> Unit>
+    navController: NavController
 ) {
 
     val context = LocalContext.current
@@ -84,7 +86,7 @@ fun MainScreen(
                 )
                 Button(onClick = {
                     scope.launch {
-                        viewModel.sendEmailVerification { navRoutes[LOGIN]?.invoke() }
+                        viewModel.sendEmailVerification { navController.navigate(LOGIN) }
                             .also {
                                 withContext(Dispatchers.Main) {
                                     Toast.makeText(context, it, Toast.LENGTH_SHORT)
@@ -96,8 +98,8 @@ fun MainScreen(
                     Text(text = "Verify email")
                 }
                 Button(onClick = {
-                    viewModel.signOut { navRoutes[LOGIN]?.invoke() }
-                    navRoutes[LOGIN]?.invoke()
+                    viewModel.signOut { navController.navigate(LOGIN) }
+                   // navController.navigate(LOGIN)    //not sure if needed
                 }) {
                     Text(text = "Sign Out")
                 }
@@ -126,15 +128,16 @@ fun MainScreen(
                     Text(text = "Submit")
                 }
             }
+        } else if (state.isLoading) {
+            Box(Modifier.fillMaxSize()) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+
         } else {
-            CustomNavigationDrawer(
+            ImmutableNavigationDrawer(
                 drawerState = drawerState,
-                onClickMain = { navRoutes[MAIN]?.invoke() },
-                onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
-                onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
-                onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
-                onClickSignOut = { viewModel.signOut { navRoutes[LOGIN]?.invoke() } },
-                onClickFriends = { navRoutes[FRIENDS]?.invoke() })
+                navController = navController,
+                signOutFunction = { viewModel.signOut { navController.navigate(LOGIN) }})
             {
                 Scaffold(
                     topBar = {
@@ -178,19 +181,19 @@ fun MainScreen(
                             )
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Button(onClick = { navRoutes[CREATE_MATCH]?.invoke() }) {
+                            Button(onClick = { navController.navigate(CREATE_MATCH) }) {
                                 Text(text = "Create match")
                             }
 
-                            Button(onClick = { navRoutes[MY_MATCHES]?.invoke() }) {
+                            Button(onClick = { navController.navigate(MY_MATCHES) }) {
                                 Text(text = "My matches")
                             }
 
-                            Button(onClick = { navRoutes[MY_STATS]?.invoke() }) {
+                            Button(onClick = { navController.navigate(MY_STATS) }) {
                                 Text(text = "My stats")
                             }
 
-                            Button(onClick = { navRoutes[FRIENDS]?.invoke() }) {
+                            Button(onClick = { navController.navigate(FRIENDS) }) {
                                 Text(text = "Friends")
                             }
                         }
@@ -198,7 +201,7 @@ fun MainScreen(
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
                                 .padding(vertical = 16.dp),
-                            onClick = { viewModel.signOut { navRoutes[LOGIN]?.invoke() } }) {
+                            onClick = { viewModel.signOut { navController.navigate(LOGIN) } }) {
                             Text(text = "Sign out")
                         }
                     }

@@ -1,6 +1,5 @@
 package com.ludicomm.presentation.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,14 +33,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.ludicomm.presentation.components.CustomNavigationDrawer
+import com.ludicomm.presentation.components.ImmutableNavigationDrawer
 import com.ludicomm.presentation.theme.GreyPlayer
 import com.ludicomm.presentation.theme.OrangePlayer
 import com.ludicomm.presentation.theme.YellowPlayer
@@ -52,7 +51,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun GameStatsScreen(
     viewModel: GameStatsViewModel = hiltViewModel(),
-    navRoutes: Map<String, () -> Unit>,
+    navController: NavController,
     gameName: String,
     gameUri: String
 ) {
@@ -70,14 +69,10 @@ fun GameStatsScreen(
     }
 
     Surface {
-        CustomNavigationDrawer(
+        ImmutableNavigationDrawer(
             drawerState = drawerState,
-            onClickMain = { navRoutes[MAIN]?.invoke() },
-            onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
-            onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
-            onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
-            onClickSignOut = { viewModel.signOut { navRoutes[LOGIN]?.invoke() } },
-            onClickFriends = { navRoutes[FRIENDS]?.invoke() })
+            navController = navController,
+            signOutFunction = { viewModel.signOut { navController.navigate(LOGIN) } })
         {
             Scaffold(
                 topBar = {

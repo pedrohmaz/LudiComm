@@ -20,9 +20,15 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.ludicomm.presentation.screens.CREATE_MATCH
+import com.ludicomm.presentation.screens.FRIENDS
+import com.ludicomm.presentation.screens.MAIN
+import com.ludicomm.presentation.screens.MY_MATCHES
+import com.ludicomm.presentation.screens.MY_STATS
 
 @Composable
-fun CustomNavigationDrawer(
+fun MutableNavigationDrawer(
     drawerState: DrawerState,
     onClickMain: () -> Unit,
     onClickCreateMatch: () -> Unit,
@@ -154,4 +160,134 @@ fun CustomNavigationDrawer(
         content = content
     )
 
+}
+
+@Composable
+fun ImmutableNavigationDrawer(
+    drawerState: DrawerState,
+    navController: NavController,
+    signOutFunction: () -> Unit,
+    content: @Composable () -> Unit
+) {
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(drawerContainerColor = MaterialTheme.colorScheme.background) {
+                Box(Modifier.fillMaxSize()) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.TopStart)
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(16.dp),
+                            text = "LudiComm",
+                            fontSize = 20.sp,
+                        )
+                        HorizontalDivider()
+                        NavigationDrawerItem(
+                            label = {
+                                Text(
+                                    text = "Main Screen",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            },
+                            selected = false,
+                            colors = NavigationDrawerItemDefaults.colors(
+                                unselectedContainerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            shape = RectangleShape,
+                            onClick = { navController.navigate(MAIN) }
+                        )
+                        HorizontalDivider()
+                        NavigationDrawerItem(
+                            label = {
+                                Text(
+                                    text = "Create Match",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            },
+                            selected = false,
+                            colors = NavigationDrawerItemDefaults.colors(
+                                unselectedContainerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            shape = RectangleShape,
+                            onClick = { navController.navigate(CREATE_MATCH) }
+                        )
+                        HorizontalDivider()
+                        NavigationDrawerItem(
+                            label = {
+                                Text(
+                                    text = "My Matches",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
+                                )
+                            },
+                            shape = RectangleShape,
+                            colors = NavigationDrawerItemDefaults.colors(
+                                unselectedContainerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            selected = false,
+                            onClick = { navController.navigate(MY_MATCHES) }
+                        )
+                        HorizontalDivider()
+                        NavigationDrawerItem(
+                            label = {
+                                Text(
+                                    text = "My Stats",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
+                                )
+                            },
+                            shape = RectangleShape,
+                            selected = false,
+                            colors = NavigationDrawerItemDefaults.colors(
+                                unselectedContainerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            onClick = { navController.navigate(MY_STATS) }
+                        )
+                        HorizontalDivider()
+                        NavigationDrawerItem(
+                            label = {
+                                Text(
+                                    text = "Friends",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
+                                )
+                            },
+                            shape = RectangleShape,
+                            selected = false,
+                            colors = NavigationDrawerItemDefaults.colors(
+                                unselectedContainerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            onClick = { navController.navigate(FRIENDS) }
+                        )
+                        HorizontalDivider()
+                    }
+
+                    Column(modifier = Modifier.align(Alignment.BottomStart)) {
+                        HorizontalDivider()
+                        NavigationDrawerItem(
+                            label = {
+                                Text(
+                                    text = "Sign Out",
+                                    fontSize = 18.sp
+                                )
+                            },
+                            colors = NavigationDrawerItemDefaults.colors(
+                                unselectedContainerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            shape = RectangleShape,
+                            selected = false,
+                            onClick = { signOutFunction() }
+                        )
+                    }
+                }
+            }
+        },
+        content = content
+    )
 }

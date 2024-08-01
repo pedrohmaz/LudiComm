@@ -39,10 +39,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import co.yml.charts.common.components.Legends
 import co.yml.charts.common.utils.DataUtils
 import co.yml.charts.ui.piechart.charts.PieChart
-import com.ludicomm.presentation.components.CustomNavigationDrawer
+import com.ludicomm.presentation.components.ImmutableNavigationDrawer
 import com.ludicomm.presentation.theme.GreyPlayer
 import com.ludicomm.presentation.theme.OrangePlayer
 import com.ludicomm.presentation.theme.YellowPlayer
@@ -53,7 +54,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MyStatsScreen(
     viewModel: MyStatsViewModel = hiltViewModel(),
-    navRoutes: Map<String, () -> Unit>
+    navController: NavController
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -70,14 +71,10 @@ fun MyStatsScreen(
     val playersChartData by viewModel.playersChartData.collectAsState()
 
     Surface {
-        CustomNavigationDrawer(
+        ImmutableNavigationDrawer(
             drawerState = drawerState,
-            onClickMain = { navRoutes[MAIN]?.invoke() },
-            onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
-            onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
-            onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
-            onClickSignOut = { navRoutes[LOGIN]?.invoke() },
-            onClickFriends = { viewModel.signOut { navRoutes[FRIENDS]?.invoke() }})
+            navController = navController,
+            signOutFunction = { viewModel.signOut { navController.navigate(LOGIN) }})
         {
             Scaffold(
                 topBar = {

@@ -49,7 +49,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ludicomm.presentation.components.CustomNavigationDrawer
+import androidx.navigation.NavController
+import com.ludicomm.presentation.components.ImmutableNavigationDrawer
 import com.ludicomm.presentation.components.CustomTextField
 import com.ludicomm.presentation.theme.LightGreenPlayer
 import com.ludicomm.presentation.theme.RedPlayer
@@ -60,7 +61,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun FriendsScreen(
     viewModel: FriendsViewModel = hiltViewModel(),
-    navRoutes: Map<String, () -> Unit>
+    navController: NavController
 ) {
 
     val friendsList by viewModel.friendsList.collectAsState()
@@ -74,14 +75,11 @@ fun FriendsScreen(
     val toggleConfirmDeleteDialog by viewModel.toggleConfirmDeleteDialog.collectAsState()
 
     Surface {
-        CustomNavigationDrawer(
+        ImmutableNavigationDrawer(
             drawerState = drawerState,
-            onClickMain = { navRoutes[MAIN]?.invoke() },
-            onClickCreateMatch = { navRoutes[CREATE_MATCH]?.invoke() },
-            onClickMyMatches = { navRoutes[MY_MATCHES]?.invoke() },
-            onClickMyStats = { navRoutes[MY_STATS]?.invoke() },
-            onClickSignOut = { viewModel.signOut { navRoutes[LOGIN]?.invoke() } },
-            onClickFriends = { navRoutes[FRIENDS]?.invoke() })
+            navController = navController,
+            signOutFunction = { viewModel.signOut { navController.navigate(LOGIN) }}
+        )
         {
             Scaffold(
                 topBar = {
