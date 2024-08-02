@@ -1,6 +1,7 @@
 package com.ludicomm.presentation.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -61,6 +62,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,9 +72,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ludicomm.R
 import com.ludicomm.data.model.PlayerMatchData
-import com.ludicomm.presentation.components.ImmutableNavigationDrawer
 import com.ludicomm.presentation.components.CustomTextField
 import com.ludicomm.presentation.components.EditPlayerWindow
+import com.ludicomm.presentation.components.ImmutableNavigationDrawer
 import com.ludicomm.presentation.components.PlayerMatchDisplay
 import com.ludicomm.presentation.viewmodel.CreateMatchViewModel
 import com.ludicomm.util.CreateMatchInputFields
@@ -366,7 +368,7 @@ fun CreateMatchScreen(
                     ) {
                         CustomTextField(
                             modifier = Modifier
-                                .width(330.dp)
+                                .width(500.dp)
                                 .padding(8.dp),
                             text = gameQueryInput,
                             onTextChange = {
@@ -402,7 +404,11 @@ fun CreateMatchScreen(
                             modifier = Modifier.scale(0.8f)
                         )
                     }
-                    Spacer(modifier = Modifier.height(11.dp))
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically){
+                        Text(text = "Powered by BoardGameGeek®")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Image(modifier = Modifier.size(28.dp),painter = painterResource(id = R.drawable.bgg_logo), contentDescription = "BGG logo")
+                    }
                     if (gameThumbnail.isNotBlank()) {
                         AsyncImage(
                             modifier = Modifier

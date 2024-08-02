@@ -23,7 +23,7 @@ import org.junit.Test
 
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class MyMatchesViewModelTest() {
+class MyMatchesViewModelTest {
 
     companion object {
         private const val USER = "testUser"

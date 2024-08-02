@@ -71,7 +71,7 @@ class SignUpViewModelTest {
                 authResultMock
             )
         )
-        coEvery { firestoreRep.registerUser(UID, VALID_USERNAME) } returns flowOf(
+        coEvery { firestoreRep.registerUser(UID, VALID_USERNAME, EMAIL) } returns flowOf(
             firestoreResultMock
         )
         coEvery { RegistrationUtil.validateUserRegistration(any(), any(), any(), any()) } returns flowOf(Resource.Success(Unit))
@@ -117,7 +117,8 @@ class SignUpViewModelTest {
         coEvery {
             firestoreRep.registerUser(
                 UID,
-                VALID_USERNAME
+                VALID_USERNAME,
+                EMAIL
             )
         } returns flowOf(Resource.Error(FIRESTORE_ERROR_MESSAGE))
         viewModel.changeInput(SignUpInputFields.ConfirmPassword, VALID_PASSWORD)

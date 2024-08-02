@@ -203,7 +203,7 @@ class CreateMatchViewModel @Inject constructor(
                                     _suggestionList.value = newList
                                 }
                                 _state.value =
-                                    CreateMatchState(isSuccess = result.message.toString())
+                                    CreateMatchState(isSuccess = "Suggestion list created")
                                 onGoingQuery = false
                             }
 
@@ -240,13 +240,17 @@ class CreateMatchViewModel @Inject constructor(
     }
 
     fun submitMatch() {
+        println("function called")
         viewModelScope.launch(Dispatchers.IO) {
+            println("coroutine called")
             val nameList = mutableListOf<String>()
             val winnerList = mutableListOf<String>()
             _playerList.value.forEach {
+                println(it.name)
                 nameList.add(it.name)
                 if (it.isWinner) winnerList.add(it.name)
             }
+            println(winnerList)
             val result =
                 RegistrationUtil.validateMatchSubmission(
                     _gameQueryInput.value,
@@ -254,6 +258,7 @@ class CreateMatchViewModel @Inject constructor(
                     _gameQueryInput.value,
                     _playerList.value
                 )
+            println(result)
             if (result is Resource.Success) {
                 if (winnerList.isNotEmpty()) {
                     val match = Match(
@@ -265,14 +270,21 @@ class CreateMatchViewModel @Inject constructor(
                         winners = winnerList
                     )
                     playerList.value.forEach { match.playerDataList.add(it) }
+                    println(match)
                     firestoreRepository.submitMatch(match).collect { firestoreResult ->
+                        println("collecting flow")
                         when (firestoreResult) {
-                            is Resource.Error -> _state.value =
-                                CreateMatchState(isError = firestoreResult.message.toString())
+                            is Resource.Error -> {
+                                _state.value =
+                                    CreateMatchState(isError = firestoreResult.message.toString())
+                                println("error: $firestoreResult.message.toString()")
+                            }
 
                             is Resource.Loading -> {}
-                            is Resource.Success -> _state.value =
+                            is Resource.Success -> { _state.value =
                                 CreateMatchState(isSuccess = "Match submitted successfully")
+                                println("success: ${_state.value.isSuccess}")
+                            }
                         }
                     }
                 } else _toggleNoWinnerDialog.value = true

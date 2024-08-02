@@ -3,7 +3,6 @@ package com.ludicomm.presentation.viewmodel
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.auth.AuthResult
 import com.ludicomm.data.repository.AuthRepository
-import com.ludicomm.presentation.viewmodel.LoginViewModel
 import com.ludicomm.util.stateHandlers.Resource
 import io.mockk.coEvery
 import io.mockk.mockk
