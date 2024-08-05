@@ -368,7 +368,7 @@ fun CreateMatchScreen(
                     ) {
                         CustomTextField(
                             modifier = Modifier
-                                .width(500.dp)
+                                .width(350.dp)
                                 .padding(8.dp),
                             text = gameQueryInput,
                             onTextChange = {

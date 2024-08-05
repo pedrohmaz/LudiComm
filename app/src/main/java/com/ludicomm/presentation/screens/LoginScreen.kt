@@ -1,6 +1,7 @@
 package com.ludicomm.presentation.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
@@ -38,6 +41,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,7 +64,8 @@ fun LoginScreen(
     onNavigateToPasswordRetrieve: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         Scaffold(
@@ -87,91 +92,101 @@ fun LoginScreen(
                 mutableStateOf(false)
             }
 
-            Column(
-                Modifier
+            Box(
+                modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(paddingValues)
+
             ) {
-
-                Spacer(modifier = Modifier.height(200.dp))
-
-                Text(text = "Email", fontSize = 24.sp)
-
-                CustomTextField(
-                    text = emailInput,
-                    keyOpt = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next
-                    ),
-                    onTextChange = { viewModel.changeInput(LoginInputFields.Email, it) }
-                )
-
-                Text(text = "Password", fontSize = 24.sp)
-
-                OutlinedTextField(
-                    value = passwordInput,
-                    visualTransformation = if (!showPassword) PasswordVisualTransformation()
-                    else VisualTransformation.None,
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Next
-                    ),
-                    onValueChange = { viewModel.changeInput(LoginInputFields.Password, it) }
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    if (state.isLoading) {
-                        CircularProgressIndicator()
-                    }
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = showPassword, onCheckedChange = {
-                        showPassword = !showPassword
-                    })
-                    Text(text = "Show Password")
-                }
-
-                Button(onClick = {
-                    scope.launch {
-                        viewModel.loginUser(emailInput, passwordInput)
-                    }
-
-                }) {
-                    Text(text = "Login")
-                }
-
-                Box(
+                Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .align(Alignment.Center)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    TextButton(modifier = Modifier.align(Alignment.BottomCenter), onClick = { onNavigateToPasswordRetrieve() }) {
+
+                    Spacer(modifier = Modifier.height(200.dp))
+
+                    Text(text = "Email", fontSize = 24.sp)
+
+                    CustomTextField(
+                        text = emailInput,
+                        keyOpt = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        ),
+                        onTextChange = { viewModel.changeInput(LoginInputFields.Email, it) }
+                    )
+
+                    Text(text = "Password", fontSize = 24.sp)
+
+                    OutlinedTextField(
+                        value = passwordInput,
+                        visualTransformation = if (!showPassword) PasswordVisualTransformation()
+                        else VisualTransformation.None,
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Next
+                        ),
+                        onValueChange = { viewModel.changeInput(LoginInputFields.Password, it) }
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        if (state.isLoading) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = showPassword, onCheckedChange = {
+                            showPassword = !showPassword
+                        })
+                        Text(text = "Show Password")
+                    }
+
+                    Button(onClick = {
+                        scope.launch {
+                            viewModel.loginUser(emailInput, passwordInput)
+                        }
+
+                    }) {
+                        Text(text = "Login")
+                    }
+                    Spacer(Modifier.height(50.dp))
+                    TextButton(
+                        modifier = Modifier.padding(8.dp),
+                        onClick = { onNavigateToPasswordRetrieve() }) {
                         Text(text = "I forgot my password")
                     }
-                    FloatingActionButton(modifier = Modifier.align(Alignment.BottomEnd), onClick = { onNavigateToSignUp() }) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add New User")
-                    }
                 }
 
+                FloatingActionButton(
+                    modifier = Modifier.padding(8.dp).align(Alignment.BottomEnd),
+                    onClick = { onNavigateToSignUp() }) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add New User"
+                    )
+                }
+            }
 
-                LaunchedEffect(key1 = state) {
-                    if (state.isSuccess?.isNotEmpty() == true) onNavigateToMain()
-                    else if (state.isError?.isNotEmpty() == true) {
-                        val error = state.isError
-                        Toast.makeText(context, error, Toast.LENGTH_SHORT)
-                            .show()
-                    }
+
+            LaunchedEffect(key1 = state) {
+                if (state.isSuccess?.isNotEmpty() == true) onNavigateToMain()
+                else if (state.isError?.isNotEmpty() == true) {
+                    val error = state.isError
+                    Toast.makeText(context, error, Toast.LENGTH_SHORT)
+                        .show()
                 }
-                LaunchedEffect(key1 = Unit){
-                    if (viewModel.isUserLoggedIn()) onNavigateToMain()
-                }
+            }
+            LaunchedEffect(key1 = Unit) {
+                if (viewModel.isUserLoggedIn()) onNavigateToMain()
             }
         }
     }

@@ -1,17 +1,16 @@
 package com.ludicomm.data.repository.implementation
 
-import com.ludicomm.data.source.BGGApi
 import com.ludicomm.data.model.BoardGames
 import com.ludicomm.data.model.Collection
 import com.ludicomm.data.model.SingleBoardGame
 import com.ludicomm.data.model.SingleBoardGameList
 import com.ludicomm.data.repository.BGGRepository
+import com.ludicomm.data.source.BGGApi
 import com.ludicomm.util.stateHandlers.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
-import javax.inject.Named
 
 class BGGRepositoryImpl @Inject constructor(
     private val bggApi: BGGApi
@@ -25,7 +24,7 @@ class BGGRepositoryImpl @Inject constructor(
                 emit(Resource.Success(result))
             }
         } catch (e: Exception) {
-            return flowOf(Resource.Error(""))
+            return flowOf(Resource.Error("$e"))
         }
 
     }

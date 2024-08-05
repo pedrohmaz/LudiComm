@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
@@ -143,6 +145,7 @@ fun FriendsScreen(
                         .fillMaxSize()
                         .padding(innerPadding)
                         .padding(8.dp)
+                        .verticalScroll(rememberScrollState())
                 ) {
 
                     Text(text = "Friend request:")
@@ -240,8 +243,8 @@ fun FriendsScreen(
                     HorizontalDivider()
                     Spacer(modifier = Modifier.height(8.dp))
                     if (friendsList.isEmpty()) Text(text = "forever alone :(", fontSize = 15.sp)
-                    LazyColumn {
-                        items(friendsList) { friend ->
+                    Column {
+                        friendsList.forEach { friend ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
