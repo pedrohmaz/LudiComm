@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
@@ -51,6 +52,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.ludicomm.R
 import com.ludicomm.presentation.components.ImmutableNavigationDrawer
 import com.ludicomm.presentation.viewmodel.MyMatchesViewModel
 import com.ludicomm.util.formatDate
@@ -79,7 +81,7 @@ fun MyMatchesScreen(
         {
             Scaffold(
                 topBar = {
-                    TopAppBar(title = { Text(text = "My Matches") }, navigationIcon = {
+                    TopAppBar(title = { Text(text = stringResource(id = R.string.my_matches)) }, navigationIcon = {
                         IconButton(
                             onClick = {
                                 scope.launch {
@@ -103,15 +105,15 @@ fun MyMatchesScreen(
 
                 if (toggleConfirmDeleteDialog.first) {
                     AlertDialog(
-                        title = { Text(text = "Delete Match") },
-                        text = { Text(text = "Are you sure you want to delete this match?") },
+                        title = { Text(text = stringResource(R.string.delete_match)) },
+                        text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_delete_this_match)) },
                         onDismissRequest = { viewModel.toggleConfirmDeleteDialog(false, "") },
                         confirmButton = {
                             TextButton(onClick = {
                                 viewModel.deleteMatch(toggleConfirmDeleteDialog.second)
                                 viewModel.toggleConfirmDeleteDialog(false, "")
                             }) {
-                                Text(text = "Confirm")
+                                Text(text = stringResource(id = R.string.confirm))
                             }
                         }, dismissButton = {
                             TextButton(onClick = {
@@ -120,7 +122,7 @@ fun MyMatchesScreen(
                                     ""
                                 )
                             }) {
-                                Text(text = "Dismiss")
+                                Text(text = stringResource(id = R.string.dismiss))
                             }
                         }
                     )
@@ -130,7 +132,7 @@ fun MyMatchesScreen(
                     Text(
                         modifier = Modifier
                             .align(Alignment.Center),
-                        text = "No matches yet :(",
+                        text = stringResource(R.string.no_matches_yet),
                         fontSize = 22.sp
                     )
                 }
@@ -180,7 +182,7 @@ fun MyMatchesScreen(
                                     }) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
-                                            contentDescription = "Delete match"
+                                            contentDescription = stringResource(id = R.string.delete_match)
                                         )
                                     }
                                 }
@@ -214,7 +216,7 @@ fun MyMatchesScreen(
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Row {
-                                    Text(text = "Winner: ")
+                                    Text(text = stringResource(R.string.winner))
                                     match.winners.forEach { winner ->
                                         if (winner == match.winners[match.winners.size - 1]) Text(
                                             text = winner,

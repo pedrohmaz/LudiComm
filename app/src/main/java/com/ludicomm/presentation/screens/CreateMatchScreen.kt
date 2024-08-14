@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -133,7 +134,7 @@ fun CreateMatchScreen(
                 Toast.LENGTH_SHORT
             ).show()
             viewModel.resetState()
-        } else if (state.isSuccess == "Match submitted successfully") {
+        } else if (state.isSuccess == context.getString(R.string.match_submitted_successfully)) {
             Toast.makeText(
                 context,
                 state.isSuccess,
@@ -153,22 +154,23 @@ fun CreateMatchScreen(
         {
             Scaffold(
                 topBar = {
-                    TopAppBar(title = { Text(text = "Create Match") }, navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                scope.launch {
-                                    drawerState.apply {
-                                        if (isClosed) open() else close()
+                    TopAppBar(title = { Text(text = stringResource(R.string.create_match)) },
+                        navigationIcon = {
+                            IconButton(
+                                onClick = {
+                                    scope.launch {
+                                        drawerState.apply {
+                                            if (isClosed) open() else close()
+                                        }
                                     }
-                                }
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "open/close nav drawer"
-                            )
-                        }
-                    },
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Menu,
+                                    contentDescription = "open/close nav drawer"
+                                )
+                            }
+                        },
                         colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primary)
                     )
                 }
@@ -184,8 +186,8 @@ fun CreateMatchScreen(
 
                     if (toggleNoWinnerDialog) {
                         AlertDialog(
-                            title = { Text(text = "No winner selected") },
-                            text = { Text(text = "Do you want to submit match without winners?") },
+                            title = { Text(text = stringResource(R.string.no_winner_selected)) },
+                            text = { Text(text = stringResource(R.string.do_you_want_to_submit_match_without_winners)) },
                             onDismissRequest = { viewModel.toggleNoWinnerDialog(false) },
                             confirmButton = {
                                 TextButton(
@@ -193,7 +195,7 @@ fun CreateMatchScreen(
                                         viewModel.submitNoWinnerMatch()
                                         viewModel.toggleNoWinnerDialog(false)
                                     }) {
-                                    Text(text = "Confirm")
+                                    Text(text = stringResource(R.string.confirm))
                                 }
                             },
                             dismissButton = {
@@ -201,7 +203,7 @@ fun CreateMatchScreen(
                                     onClick = {
                                         viewModel.toggleNoWinnerDialog(false)
                                     }) {
-                                    Text(text = "Dismiss")
+                                    Text(text = stringResource(R.string.dismiss))
                                 }
                             }
                         )
@@ -210,7 +212,7 @@ fun CreateMatchScreen(
 
                     if (toggleConfirmDeleteDialog) {
                         AlertDialog(
-                            title = { Text(text = "Delete player") },
+                            title = { Text(text = stringResource(R.string.delete_player)) },
                             text = { Text(text = "Do you want to delete player?") },
                             onDismissRequest = { viewModel.toggleConfirmDeleteDialog(false) },
                             confirmButton = {
@@ -219,7 +221,7 @@ fun CreateMatchScreen(
                                         viewModel.deletePlayer(editIndex)
                                         viewModel.toggleConfirmDeleteDialog(false)
                                     }) {
-                                    Text(text = "Confirm")
+                                    Text(text = stringResource(R.string.confirm))
                                 }
                             },
                             dismissButton = {
@@ -227,7 +229,7 @@ fun CreateMatchScreen(
                                     onClick = {
                                         viewModel.toggleConfirmDeleteDialog(false)
                                     }) {
-                                    Text(text = "Dismiss")
+                                    Text(text = stringResource(R.string.dismiss))
                                 }
                             }
                         )
@@ -245,7 +247,12 @@ fun CreateMatchScreen(
                                     || nameInput == currentUser && !playerList.any { it.name == nameInput }) {
                                     viewModel.addPlayer(
                                         PlayerMatchData(
-                                            name = updatedName.ifEmpty { "Player ${editIndex + 1}" },
+                                            name = updatedName.ifEmpty {
+                                                context.getString(
+                                                    R.string.player,
+                                                    "${editIndex + 1}"
+                                                )
+                                            },
                                             faction = updatedFaction,
                                             score = scoreInput.ifBlank { "0" },
                                             color = selectedColor?.toArgb()?.toString()
@@ -261,7 +268,7 @@ fun CreateMatchScreen(
                                 else viewModel.toggleRepeatedPlayerDialog(true)
                             },
                             friendsList = friendsList,
-                            dialogTitle = "New player"
+                            dialogTitle = stringResource(R.string.new_player)
                         )
                     }
 
@@ -274,7 +281,12 @@ fun CreateMatchScreen(
                                 val updatedFaction = removeEndBlanks(factionInput)
                                 viewModel.editPlayer(
                                     editIndex, PlayerMatchData(
-                                        name = updatedName.ifBlank { "Player ${editIndex + 1}" },
+                                        name = updatedName.ifBlank {
+                                            context.getString(
+                                                R.string.player,
+                                                "${editIndex + 1}"
+                                            )
+                                        },
                                         faction = updatedFaction,
                                         score = scoreInput.ifBlank { "0" },
                                         color = selectedColor?.toArgb()?.toString()
@@ -287,14 +299,14 @@ fun CreateMatchScreen(
                                 viewModel.toggleEditPlayerWindow(false)
                             },
                             friendsList = friendsList,
-                            dialogTitle = "Edit player",
+                            dialogTitle = stringResource(R.string.edit_player),
                         )
                     }
 
                     if (toggleNotAUserDialog) {
                         AlertDialog(
-                            title = { Text(text = "Player is not a registered user") },
-                            text = { Text(text = "Do you want to add player as a guest?") },
+                            title = { Text(text = stringResource(R.string.player_is_not_a_registered_user)) },
+                            text = { Text(text = stringResource(R.string.do_you_want_to_add_player_as_a_guest)) },
                             onDismissRequest = { viewModel.toggleNotAUserDialog(false) },
                             confirmButton = {
                                 TextButton(onClick = {
@@ -302,7 +314,12 @@ fun CreateMatchScreen(
                                     val updatedFaction = removeEndBlanks(factionInput)
                                     viewModel.addPlayer(
                                         PlayerMatchData(
-                                            name = updatedName.ifEmpty { "Player ${editIndex + 1}" } + " (guest)",
+                                            name = updatedName.ifEmpty {
+                                                context.getString(
+                                                    R.string.player,
+                                                    "${editIndex + 1}"
+                                                )
+                                            } + " (guest)",
                                             faction = updatedFaction,
                                             score = scoreInput.ifBlank { "0" },
                                             color = selectedColor?.toArgb()?.toString()
@@ -314,20 +331,20 @@ fun CreateMatchScreen(
                                     viewModel.toggleNewPlayerWindow(false)
                                     viewModel.clearInputs()
                                 }) {
-                                    Text(text = "Confirm")
+                                    Text(text = stringResource(id = R.string.confirm))
                                 }
                             },
                             dismissButton = {
                                 TextButton(onClick = { viewModel.toggleNotAUserDialog(false) }) {
-                                    Text(text = "Dismiss")
+                                    Text(text = stringResource(id = R.string.dismiss))
                                 }
                             })
                     }
 
                     if (toggleRepeatedPlayerDialog) {
                         AlertDialog(
-                            title = { Text(text = "Player is already registered") },
-                            text = { Text(text = "Do you want to add a copy of the player as a guest?") },
+                            title = { Text(text = stringResource(R.string.player_is_already_registered)) },
+                            text = { Text(text = stringResource(R.string.do_you_want_to_add_a_copy_of_the_player_as_a_guest)) },
                             onDismissRequest = { viewModel.toggleRepeatedPlayerDialog(false) },
                             confirmButton = {
                                 TextButton(onClick = {
@@ -335,7 +352,12 @@ fun CreateMatchScreen(
                                     val updatedFaction = removeEndBlanks(factionInput)
                                     viewModel.addPlayer(
                                         PlayerMatchData(
-                                            name = updatedName.ifEmpty { "Player ${editIndex + 1}" } + " (guest)",
+                                            name = updatedName.ifEmpty {
+                                                context.getString(
+                                                    R.string.player,
+                                                    "${editIndex + 1}"
+                                                )
+                                            } + " (guest)",
                                             faction = updatedFaction,
                                             score = scoreInput.ifBlank { "0" },
                                             color = selectedColor?.toArgb()?.toString()
@@ -347,19 +369,19 @@ fun CreateMatchScreen(
                                     viewModel.toggleNewPlayerWindow(false)
                                     viewModel.clearInputs()
                                 }) {
-                                    Text(text = "Confirm")
+                                    Text(text = stringResource(id = R.string.confirm))
                                 }
                             },
                             dismissButton = {
                                 TextButton(onClick = { viewModel.toggleRepeatedPlayerDialog(false) }) {
-                                    Text(text = "Dismiss")
+                                    Text(text = stringResource(id = R.string.dismiss))
                                 }
                             })
                     }
 
                     Text(
                         modifier = Modifier.padding(),
-                        text = "Game:",
+                        text = stringResource(R.string.game),
                         fontSize = 22.sp
                     )
                     Row(
@@ -393,7 +415,7 @@ fun CreateMatchScreen(
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Clear,
-                                        contentDescription = "Clear game query"
+                                        contentDescription = "clear game query"
                                     )
                                 }
                             },
@@ -404,10 +426,19 @@ fun CreateMatchScreen(
                             modifier = Modifier.scale(0.8f)
                         )
                     }
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically){
-                        Text(text = "Powered by BoardGameGeek®")
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = stringResource(R.string.powered_by_boardgamegeek))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Image(modifier = Modifier.size(28.dp),painter = painterResource(id = R.drawable.bgg_logo), contentDescription = "BGG logo")
+                        Image(
+                            modifier = Modifier.size(28.dp),
+                            painter = painterResource(id = R.drawable.bgg_logo),
+                            contentDescription = "BGG logo"
+                        )
                     }
                     if (gameThumbnail.isNotBlank()) {
                         AsyncImage(
@@ -415,11 +446,11 @@ fun CreateMatchScreen(
                                 .padding(horizontal = 32.dp, vertical = 20.dp)
                                 .scale(1.8f),
                             model = ImageRequest.Builder(context).data(gameThumbnail).build(),
-                            contentDescription = "Selected game thumbnail"
+                            contentDescription = "selected game thumbnail"
                         )
                     }
                     Spacer(modifier = Modifier.height(11.dp))
-                    Text(text = "Players:", fontSize = 22.sp)
+                    Text(text = stringResource(R.string.players), fontSize = 22.sp)
                     Spacer(modifier = Modifier.height(22.dp))
                     Column(
                         Modifier.fillMaxWidth(),
@@ -431,11 +462,17 @@ fun CreateMatchScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Spacer(modifier = Modifier.weight(16f))
-                            Text(modifier = Modifier.weight(27.5f), text = "Name")
+                            Text(
+                                modifier = Modifier.weight(27.5f),
+                                text = stringResource(R.string.name)
+                            )
                             //   Spacer(modifier = Modifier.weight(48.dp))
-                            Text(modifier = Modifier.weight(32f), text = "Color/Faction")
+                            Text(
+                                modifier = Modifier.weight(32f),
+                                text = stringResource(R.string.color_faction)
+                            )
                             // Spacer(modifier = Modifier.weight(8.dp))
-                            Text(modifier = Modifier.weight(14f), text = "Score")
+                            Text(modifier = Modifier.weight(14f), text = stringResource(R.string.score))
                             Spacer(modifier = Modifier.weight(20f))
                         }
                         playerList.forEach {
@@ -479,13 +516,13 @@ fun CreateMatchScreen(
                         viewModel.toggleNewPlayerWindow(true)
                     })
                     {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add Icon")
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "add Icon")
                     }
                     Spacer(modifier = Modifier.height(64.dp))
                     Button(modifier = Modifier.align(Alignment.CenterHorizontally),
                         onClick = { viewModel.submitMatch() })
                     {
-                        Text(text = "Submit Match")
+                        Text(text = stringResource(R.string.submit_match))
                     }
                 }
                 if (toggleSuggestionList) {

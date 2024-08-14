@@ -13,8 +13,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ludicomm.R
 import com.ludicomm.presentation.components.CustomTextField
 import com.ludicomm.presentation.viewmodel.PasswordRetrieveViewModel
 
@@ -32,19 +34,19 @@ fun PasswordRetrieveScreen(
                 .fillMaxSize()
                 .padding(75.dp), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Type your email and click the 'Send Request' button.")
+            Text(text = stringResource(R.string.type_your_email_and_click_the_send_request_button))
             Spacer(modifier = Modifier.height(8.dp))
             CustomTextField(
                 text = emailInput,
                 onTextChange = { viewModel.changeInput(it) },
-                label = "Email"
+                label = stringResource(id = R.string.email)
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = {
                 viewModel.sendPasswordRetrievalEmail()
                 onNavigateToLogin()
             }) {
-                Text(text = "Send Request")
+                Text(text = stringResource(R.string.send_request))
             }
         }
     }

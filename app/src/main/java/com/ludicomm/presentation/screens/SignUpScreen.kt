@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ludicomm.R
 import com.ludicomm.presentation.components.CustomTextField
 import com.ludicomm.presentation.viewmodel.SignUpViewModel
 import com.ludicomm.util.SignUpInputFields
@@ -91,7 +93,7 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), onNavigateToLogin
 
                 Spacer(modifier = Modifier.height(50.dp))
 
-                Text(text = "Username", fontSize = 24.sp)
+                Text(text = stringResource(R.string.username), fontSize = 24.sp)
 
                 CustomTextField(
                     text = usernameInput,
@@ -102,7 +104,7 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), onNavigateToLogin
                     onTextChange = { viewModel.changeInput(SignUpInputFields.Username, it) }
                 )
 
-                Text(text = "Email", fontSize = 24.sp)
+                Text(text = stringResource(id = R.string.email), fontSize = 24.sp)
 
                 CustomTextField(
                     text = emailInput,
@@ -113,7 +115,7 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), onNavigateToLogin
                     onTextChange = { viewModel.changeInput(SignUpInputFields.Email, it) }
                 )
 
-                Text(text = "Password", fontSize = 24.sp)
+                Text(text = stringResource(id = R.string.password), fontSize = 24.sp)
 
                 OutlinedTextField(
                     value = passwordInput,
@@ -127,7 +129,7 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), onNavigateToLogin
                     onValueChange = { viewModel.changeInput(SignUpInputFields.Password, it) }
                 )
 
-                Text(text = "Repeat Password", fontSize = 24.sp)
+                Text(text = stringResource(R.string.repeat_password), fontSize = 24.sp)
 
                 OutlinedTextField(
                     value = confirmPasswordInput,
@@ -145,7 +147,7 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), onNavigateToLogin
                     Checkbox(checked = showPassword, onCheckedChange = {
                         showPassword = !showPassword
                     })
-                    Text(text = "Show Password")
+                    Text(text = stringResource(id = R.string.show_password))
                 }
 
                 Row(
@@ -162,7 +164,7 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), onNavigateToLogin
                         viewModel.registerUser(usernameInput, emailInput, passwordInput)
                     }
                 }) {
-                    Text(text = "SignUp")
+                    Text(text = stringResource(R.string.signup))
                 }
 
                 LaunchedEffect(key1 = state) {

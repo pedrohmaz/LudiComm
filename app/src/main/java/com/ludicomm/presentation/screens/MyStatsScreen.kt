@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,6 +44,7 @@ import androidx.navigation.NavController
 import co.yml.charts.common.components.Legends
 import co.yml.charts.common.utils.DataUtils
 import co.yml.charts.ui.piechart.charts.PieChart
+import com.ludicomm.R
 import com.ludicomm.presentation.components.ImmutableNavigationDrawer
 import com.ludicomm.presentation.theme.GreyPlayer
 import com.ludicomm.presentation.theme.OrangePlayer
@@ -74,26 +76,28 @@ fun MyStatsScreen(
         ImmutableNavigationDrawer(
             drawerState = drawerState,
             navController = navController,
-            signOutFunction = { viewModel.signOut { navController.navigate(LOGIN) }})
+            signOutFunction = { viewModel.signOut { navController.navigate(LOGIN) } })
         {
             Scaffold(
                 topBar = {
-                    TopAppBar(title = { Text(text = "My Stats") }, navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                scope.launch {
-                                    drawerState.apply {
-                                        if (isClosed) open() else close()
+                    TopAppBar(
+                        title = { Text(text = stringResource(id = R.string.my_stats)) },
+                        navigationIcon = {
+                            IconButton(
+                                onClick = {
+                                    scope.launch {
+                                        drawerState.apply {
+                                            if (isClosed) open() else close()
+                                        }
                                     }
-                                }
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "open/close nav drawer"
-                            )
-                        }
-                    },
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Menu,
+                                    contentDescription = "open/close nav drawer"
+                                )
+                            }
+                        },
                         colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primary)
                     )
                 }
@@ -114,8 +118,14 @@ fun MyStatsScreen(
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text(text = "Total matches played: $totalMatches", fontSize = 20.sp)
-                        Text(text = "Total matches won: $totalWins", fontSize = 20.sp)
+                        Text(
+                            text = stringResource(R.string.total_matches_played, totalMatches),
+                            fontSize = 20.sp
+                        )
+                        Text(
+                            text = stringResource(R.string.total_matches_won, totalWins),
+                            fontSize = 20.sp
+                        )
 
                         Row(
                             Modifier
@@ -143,44 +153,56 @@ fun MyStatsScreen(
 
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(
-                                text = "Game most played:",
+                                text = stringResource(R.string.game_most_played),
                                 fontSize = 20.sp
                             )
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Star,
                                     tint = YellowPlayer,
-                                    contentDescription = "Star Icon"
+                                    contentDescription = "star Icon"
                                 )
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Text(
-                                    text = if (gamesMostPlayed[0].second == 0) "No game"
-                                    else "${gamesMostPlayed[0].first} (${gamesMostPlayed[0].second} times)"
+                                    text = if (gamesMostPlayed[0].second == 0) stringResource(R.string.no_game)
+                                    else stringResource(
+                                        R.string.times,
+                                        gamesMostPlayed[0].first,
+                                        gamesMostPlayed[0].second
+                                    )
                                 )
                             }
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Star,
                                     tint = GreyPlayer,
-                                    contentDescription = "Star Icon"
+                                    contentDescription = "star Icon"
                                 )
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Text(
-                                    text = if (gamesMostPlayed[1].second == 0) "No game"
-                                    else "${gamesMostPlayed[1].first} (${gamesMostPlayed[1].second} times)"
+                                    text = if (gamesMostPlayed[1].second == 0) stringResource(id = R.string.no_game)
+                                    else stringResource(
+                                        R.string.times,
+                                        gamesMostPlayed[1].first,
+                                        gamesMostPlayed[1].second
+                                    )
                                 )
                             }
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Star,
                                     tint = OrangePlayer,
-                                    contentDescription = "Star Icon"
+                                    contentDescription = "star Icon"
                                 )
 
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Text(
-                                    text = if (gamesMostPlayed[2].second == 0) "No game"
-                                    else "${gamesMostPlayed[2].first} (${gamesMostPlayed[2].second} times)"
+                                    text = if (gamesMostPlayed[2].second == 0) stringResource(id = R.string.no_game)
+                                    else stringResource(
+                                        R.string.times,
+                                        gamesMostPlayed[2].first,
+                                        gamesMostPlayed[2].second
+                                    )
                                 )
                             }
 
@@ -213,43 +235,55 @@ fun MyStatsScreen(
 
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(
-                                text = "Players most played with:",
+                                text = stringResource(R.string.players_most_played_with),
                                 fontSize = 20.sp
                             )
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Star,
                                     tint = YellowPlayer,
-                                    contentDescription = "Star Icon"
+                                    contentDescription = "star Icon"
                                 )
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Text(
-                                    text = if (playersMostPlayed[0].second == 0) "No player"
-                                    else "${playersMostPlayed[0].first} (${playersMostPlayed[0].second} times)"
+                                    text = if (playersMostPlayed[0].second == 0) stringResource(R.string.no_player)
+                                    else stringResource(
+                                        R.string.times,
+                                        playersMostPlayed[0].first,
+                                        playersMostPlayed[0].second
+                                    )
                                 )
                             }
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Star,
                                     tint = GreyPlayer,
-                                    contentDescription = "Star Icon"
+                                    contentDescription = "star Icon"
                                 )
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Text(
-                                    text = if (playersMostPlayed[1].second == 0) "No player"
-                                    else "${playersMostPlayed[1].first} (${playersMostPlayed[1].second} times)"
+                                    text = if (playersMostPlayed[1].second == 0) stringResource(R.string.no_player)
+                                    else stringResource(
+                                        R.string.times,
+                                        playersMostPlayed[1].first,
+                                        playersMostPlayed[1].second
+                                    )
                                 )
                             }
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Star,
                                     tint = OrangePlayer,
-                                    contentDescription = "Star Icon"
+                                    contentDescription = "star Icon"
                                 )
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Text(
-                                    text = if (playersMostPlayed[2].second == 0) "No player"
-                                    else "${playersMostPlayed[2].first} (${playersMostPlayed[2].second} times)"
+                                    text = if (playersMostPlayed[2].second == 0) stringResource(R.string.no_player)
+                                    else stringResource(
+                                        R.string.times,
+                                        playersMostPlayed[2].first,
+                                        playersMostPlayed[2].second
+                                    )
                                 )
                             }
 

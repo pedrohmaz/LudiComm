@@ -1,7 +1,6 @@
 package com.ludicomm.presentation.screens
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,8 +40,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -50,6 +49,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ludicomm.R
 import com.ludicomm.presentation.components.CustomTextField
 import com.ludicomm.presentation.viewmodel.LoginViewModel
 import com.ludicomm.util.LoginInputFields
@@ -109,7 +109,7 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(200.dp))
 
-                    Text(text = "Email", fontSize = 24.sp)
+                    Text(text = stringResource(R.string.email), fontSize = 24.sp)
 
                     CustomTextField(
                         text = emailInput,
@@ -120,7 +120,7 @@ fun LoginScreen(
                         onTextChange = { viewModel.changeInput(LoginInputFields.Email, it) }
                     )
 
-                    Text(text = "Password", fontSize = 24.sp)
+                    Text(text = stringResource(R.string.password), fontSize = 24.sp)
 
                     OutlinedTextField(
                         value = passwordInput,
@@ -147,7 +147,7 @@ fun LoginScreen(
                         Checkbox(checked = showPassword, onCheckedChange = {
                             showPassword = !showPassword
                         })
-                        Text(text = "Show Password")
+                        Text(text = stringResource(R.string.show_password))
                     }
 
                     Button(onClick = {
@@ -156,22 +156,24 @@ fun LoginScreen(
                         }
 
                     }) {
-                        Text(text = "Login")
+                        Text(text = stringResource(R.string.login))
                     }
                     Spacer(Modifier.height(50.dp))
                     TextButton(
                         modifier = Modifier.padding(8.dp),
                         onClick = { onNavigateToPasswordRetrieve() }) {
-                        Text(text = "I forgot my password")
+                        Text(text = stringResource(R.string.i_forgot_my_password))
                     }
                 }
 
                 FloatingActionButton(
-                    modifier = Modifier.padding(8.dp).align(Alignment.BottomEnd),
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .align(Alignment.BottomEnd),
                     onClick = { onNavigateToSignUp() }) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add New User"
+                        contentDescription = stringResource(R.string.add_new_user)
                     )
                 }
             }

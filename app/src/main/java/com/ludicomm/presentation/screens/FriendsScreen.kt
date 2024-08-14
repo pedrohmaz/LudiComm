@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -46,14 +44,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.ludicomm.presentation.components.ImmutableNavigationDrawer
+import com.ludicomm.R
 import com.ludicomm.presentation.components.CustomTextField
+import com.ludicomm.presentation.components.ImmutableNavigationDrawer
 import com.ludicomm.presentation.theme.LightGreenPlayer
 import com.ludicomm.presentation.theme.RedPlayer
 import com.ludicomm.presentation.viewmodel.FriendsViewModel
@@ -85,7 +85,7 @@ fun FriendsScreen(
         {
             Scaffold(
                 topBar = {
-                    TopAppBar(title = { Text(text = "My Matches") }, navigationIcon = {
+                    TopAppBar(title = { Text(text = stringResource(R.string.friends)) }, navigationIcon = {
                         IconButton(
                             onClick = {
                                 scope.launch {
@@ -117,15 +117,15 @@ fun FriendsScreen(
 
                 if (toggleConfirmDeleteDialog.first) {
                     AlertDialog(
-                        title = { Text(text = "Delete Friend") },
-                        text = { Text(text = "Are you sure you want to delete this friend?") },
+                        title = { Text(text = stringResource(R.string.delete_friend)) },
+                        text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_delete_this_friend)) },
                         onDismissRequest = { viewModel.toggleConfirmDeleteDialog(false, "") },
                         confirmButton = {
                             TextButton(onClick = {
                                 viewModel.deleteFriend(toggleConfirmDeleteDialog.second)
                                 viewModel.toggleConfirmDeleteDialog(false, "")
                             }) {
-                                Text(text = "Confirm")
+                                Text(text = stringResource(R.string.confirm))
                             }
                         }, dismissButton = {
                             TextButton(onClick = {
@@ -134,7 +134,7 @@ fun FriendsScreen(
                                     ""
                                 )
                             }) {
-                                Text(text = "Dismiss")
+                                Text(text = stringResource(R.string.dismiss))
                             }
                         }
                     )
@@ -170,7 +170,7 @@ fun FriendsScreen(
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Clear,
-                                        contentDescription = "Clear user query"
+                                        contentDescription = "clear user query"
                                     )
                                 }
                             },
@@ -180,7 +180,7 @@ fun FriendsScreen(
                         Button(
                             modifier = Modifier.weight(33f),
                             onClick = { viewModel.requestFriend() }) {
-                            Text(text = "Request")
+                            Text(text = stringResource(R.string.request))
                         }
                         if (state.isLoading) {
                             CircularProgressIndicator()
@@ -188,10 +188,10 @@ fun FriendsScreen(
 
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Pending Requests", fontSize = 18.sp)
+                    Text(text = stringResource(R.string.pending_requests), fontSize = 18.sp)
                     HorizontalDivider()
-                    Text(text = "Received:", fontSize = 17.sp)
-                    if (receivedRequestList.isEmpty()) Text(text = "no requests", fontSize = 15.sp)
+                    Text(text = stringResource(R.string.received), fontSize = 17.sp)
+                    if (receivedRequestList.isEmpty()) Text(text = stringResource(R.string.no_requests), fontSize = 15.sp)
                     else {
                         receivedRequestList.forEach {
                             Row(
@@ -204,45 +204,45 @@ fun FriendsScreen(
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         tint = LightGreenPlayer,
-                                        contentDescription = "Accept request"
+                                        contentDescription = stringResource(R.string.accept_request)
                                     )
                                 }
                                 IconButton(onClick = { viewModel.dismissReceivedRequest(it) }) {
                                     Icon(
                                         imageVector = Icons.Default.Clear,
                                         tint = RedPlayer,
-                                        contentDescription = "Dismiss request"
+                                        contentDescription = stringResource(R.string.dismiss_request)
                                     )
                                 }
                             }
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Sent:", fontSize = 17.sp)
-                    if (sentRequestList.isEmpty()) Text(text = "no requests", fontSize = 15.sp)
+                    Text(text = stringResource(R.string.sent), fontSize = 17.sp)
+                    if (sentRequestList.isEmpty()) Text(text = stringResource(R.string.no_requests), fontSize = 15.sp)
                     else {
                         sentRequestList.forEach {
                             Row(
                                 modifier = Modifier.wrapContentHeight(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(text = "$it (awaiting response)", fontSize = 15.sp)
+                                Text(text = it + stringResource(R.string.awaiting_response), fontSize = 15.sp)
                                 Spacer(modifier = Modifier.width(100.dp))
                                 IconButton(onClick = { viewModel.dismissSentRequest(it) }) {
                                     Icon(
                                         imageVector = Icons.Default.Clear,
                                         tint = RedPlayer,
-                                        contentDescription = "Dismiss request"
+                                        contentDescription = stringResource(R.string.dismiss_request)
                                     )
                                 }
                             }
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Friend List", fontSize = 18.sp)
+                    Text(text = stringResource(R.string.friend_list), fontSize = 18.sp)
                     HorizontalDivider()
                     Spacer(modifier = Modifier.height(8.dp))
-                    if (friendsList.isEmpty()) Text(text = "forever alone :(", fontSize = 15.sp)
+                    if (friendsList.isEmpty()) Text(text = stringResource(R.string.forever_alone), fontSize = 15.sp)
                     Column {
                         friendsList.forEach { friend ->
                             Row(
@@ -259,7 +259,7 @@ fun FriendsScreen(
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete friend"
+                                        contentDescription = "delete icon"
                                     )
                                 }
                             }

@@ -34,12 +34,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.ludicomm.R
 import com.ludicomm.presentation.theme.BlackPlayer
 import com.ludicomm.presentation.theme.DarkBluePlayer
 import com.ludicomm.presentation.theme.DarkGreenPlayer
@@ -98,7 +100,7 @@ fun EditPlayerWindow(
                 },
                 label = {
                     Text(
-                        text = "Player Name"
+                        text = stringResource(R.string.player_name)
                     )
                 })
 
@@ -118,7 +120,10 @@ fun EditPlayerWindow(
                                 friendSelected = friend
                             }) {
                                 Text(
-                                    text = if (friend == currentUser) friend.plus(" (you)")
+                                    text = if (friend == currentUser) friend.plus(
+                                        context.getString(
+                                            R.string.you
+                                        ))
                                     else friend,
                                     color = White
                                 )
@@ -145,7 +150,7 @@ fun EditPlayerWindow(
                 singleLine = true,
                 label = {
                     Text(
-                        text = "Color or Faction"
+                        text = stringResource(R.string.color_or_faction)
                     )
                 })
 
@@ -241,7 +246,7 @@ fun EditPlayerWindow(
                 singleLine = true,
                 label = {
                     Text(
-                        text = "Score"
+                        text = stringResource(id = R.string.score)
                     )
                 }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
@@ -253,7 +258,7 @@ fun EditPlayerWindow(
                         onConfirmation()
                     }
                 ) {
-                    Text("Confirm", fontSize = 16.sp)
+                    Text(stringResource(id = R.string.confirm), fontSize = 16.sp)
                 }
 
                 TextButton(
@@ -261,7 +266,7 @@ fun EditPlayerWindow(
                         onDismissRequest()
                     }
                 ) {
-                    Text("Dismiss", fontSize = 16.sp)
+                    Text(stringResource(id = R.string.dismiss), fontSize = 16.sp)
                 }
             }
         }

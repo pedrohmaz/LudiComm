@@ -34,12 +34,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.ludicomm.R
 import com.ludicomm.presentation.components.ImmutableNavigationDrawer
 import com.ludicomm.presentation.theme.GreyPlayer
 import com.ludicomm.presentation.theme.OrangePlayer
@@ -76,22 +78,24 @@ fun GameStatsScreen(
         {
             Scaffold(
                 topBar = {
-                    TopAppBar(title = { Text(text = "Game Stats") }, navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                scope.launch {
-                                    drawerState.apply {
-                                        if (isClosed) open() else close()
+                    TopAppBar(
+                        title = { Text(text = stringResource(R.string.game_stats)) },
+                        navigationIcon = {
+                            IconButton(
+                                onClick = {
+                                    scope.launch {
+                                        drawerState.apply {
+                                            if (isClosed) open() else close()
+                                        }
                                     }
-                                }
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "open/close nav drawer"
-                            )
-                        }
-                    },
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Menu,
+                                    contentDescription = "open/close nav drawer"
+                                )
+                            }
+                        },
                         colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primary)
                     )
                 }
@@ -114,24 +118,38 @@ fun GameStatsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text(text = "Games played: ${matchList.size}")
-                                Text(text = "Games won: ${viewModel.computeTotalWins()}")
-                                Text(text = "Average score: ${viewModel.computeAveragePoints()}")
-                                Text(text = "Best score: " + if (matchList.isNotEmpty()) "${viewModel.getBestScore()}" else "-")
+                                Text(text = stringResource(R.string.games_played, matchList.size))
+                                Text(
+                                    text = stringResource(
+                                        R.string.games_won,
+                                        viewModel.computeTotalWins()
+                                    )
+                                )
+                                Text(
+                                    text = stringResource(
+                                        R.string.average_score,
+                                        viewModel.computeAveragePoints()
+                                    )
+                                )
+                                Text(text = stringResource(R.string.best_score) + if (matchList.isNotEmpty()) "${viewModel.getBestScore()}" else "-")
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Text(text = "Best players: ", fontSize = 18.sp)
+                                Text(text = stringResource(R.string.best_players), fontSize = 18.sp)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 if (winnerList.isNotEmpty()) {
                                     Row {
                                         Icon(
                                             imageVector = Icons.Default.Star,
                                             tint = YellowPlayer,
-                                            contentDescription = "Star Icon"
+                                            contentDescription = "star icon"
                                         )
                                         Spacer(modifier = Modifier.width(16.dp))
                                         Text(
-                                            text = if (winnerList[0].second == 0) "No player"
-                                            else "${winnerList[0].first} (${winnerList[0].second} win" +
+                                            text = if (winnerList[0].second == 0) stringResource(R.string.no_player)
+                                            else stringResource(
+                                                R.string.win,
+                                                winnerList[0].first,
+                                                winnerList[0].second
+                                            ) +
                                                     if (winnerList[0].second > 1) "s)" else ")"
                                         )
                                     }
@@ -139,12 +157,18 @@ fun GameStatsScreen(
                                         Icon(
                                             imageVector = Icons.Default.Star,
                                             tint = GreyPlayer,
-                                            contentDescription = "Star Icon"
+                                            contentDescription = "star icon"
                                         )
                                         Spacer(modifier = Modifier.width(16.dp))
                                         Text(
-                                            text = if (winnerList.size < 2 || winnerList[1].second == 0) "No player"
-                                            else "${winnerList[1].first} (${winnerList[1].second} win" +
+                                            text = if (winnerList.size < 2 || winnerList[1].second == 0) stringResource(
+                                                R.string.no_player
+                                            )
+                                            else stringResource(
+                                                R.string.win,
+                                                winnerList[1].first,
+                                                winnerList[1].second
+                                            ) +
                                                     if (winnerList[1].second > 1) "s)" else ")"
                                         )
                                     }
@@ -152,12 +176,18 @@ fun GameStatsScreen(
                                         Icon(
                                             imageVector = Icons.Default.Star,
                                             tint = OrangePlayer,
-                                            contentDescription = "Star Icon"
+                                            contentDescription = "star icon"
                                         )
                                         Spacer(modifier = Modifier.width(16.dp))
                                         Text(
-                                            text = if (winnerList.size < 3 || winnerList[2].second == 0) "No player"
-                                            else "${winnerList[2].first} (${winnerList[2].second} win" +
+                                            text = if (winnerList.size < 3 || winnerList[2].second == 0) stringResource(
+                                                R.string.no_player
+                                            )
+                                            else stringResource(
+                                                R.string.win,
+                                                winnerList[2].first,
+                                                winnerList[2].second
+                                            ) +
                                                     if (winnerList[2].second > 1) "s)" else ")"
                                         )
                                     }

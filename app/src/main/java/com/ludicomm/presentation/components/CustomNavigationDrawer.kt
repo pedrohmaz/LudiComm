@@ -17,10 +17,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.ludicomm.R
 import com.ludicomm.presentation.screens.CREATE_MATCH
 import com.ludicomm.presentation.screens.FRIENDS
 import com.ludicomm.presentation.screens.MAIN
@@ -51,14 +53,14 @@ fun MutableNavigationDrawer(
                     ) {
                         Text(
                             modifier = Modifier.padding(16.dp),
-                            text = "LudiComm",
+                            text = stringResource(id = R.string.app_name),
                             fontSize = 20.sp,
                         )
                         HorizontalDivider()
                         NavigationDrawerItem(
                             label = {
                                 Text(
-                                    text = "Main Screen",
+                                    text = stringResource(R.string.main_screen),
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -74,7 +76,7 @@ fun MutableNavigationDrawer(
                         NavigationDrawerItem(
                             label = {
                                 Text(
-                                    text = "Create Match",
+                                    text = stringResource(id = R.string.create_match),
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -90,7 +92,7 @@ fun MutableNavigationDrawer(
                         NavigationDrawerItem(
                             label = {
                                 Text(
-                                    text = "My Matches",
+                                    text = stringResource(id = R.string.my_matches),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp
                                 )
@@ -106,7 +108,7 @@ fun MutableNavigationDrawer(
                         NavigationDrawerItem(
                             label = {
                                 Text(
-                                    text = "My Stats",
+                                    text = stringResource(id = R.string.my_stats),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp
                                 )
@@ -122,7 +124,7 @@ fun MutableNavigationDrawer(
                         NavigationDrawerItem(
                             label = {
                                 Text(
-                                    text = "Friends",
+                                    text = stringResource(id = R.string.friends),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp
                                 )
@@ -142,7 +144,7 @@ fun MutableNavigationDrawer(
                         NavigationDrawerItem(
                             label = {
                                 Text(
-                                    text = "Sign Out",
+                                    text = stringResource(id = R.string.sign_out),
                                     fontSize = 18.sp
                                 )
                             },
@@ -182,14 +184,14 @@ fun ImmutableNavigationDrawer(
                     ) {
                         Text(
                             modifier = Modifier.padding(16.dp),
-                            text = "LudiComm",
+                            text = stringResource(id = R.string.app_name),
                             fontSize = 20.sp,
                         )
                         HorizontalDivider()
                         NavigationDrawerItem(
                             label = {
                                 Text(
-                                    text = "Main Screen",
+                                    text = stringResource(id = R.string.main_screen),
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -205,7 +207,7 @@ fun ImmutableNavigationDrawer(
                         NavigationDrawerItem(
                             label = {
                                 Text(
-                                    text = "Create Match",
+                                    text = stringResource(id = R.string.create_match),
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -221,7 +223,7 @@ fun ImmutableNavigationDrawer(
                         NavigationDrawerItem(
                             label = {
                                 Text(
-                                    text = "My Matches",
+                                    text = stringResource(id = R.string.my_matches),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp
                                 )
@@ -237,7 +239,7 @@ fun ImmutableNavigationDrawer(
                         NavigationDrawerItem(
                             label = {
                                 Text(
-                                    text = "My Stats",
+                                    text = stringResource(id = R.string.my_stats),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp
                                 )
@@ -253,7 +255,7 @@ fun ImmutableNavigationDrawer(
                         NavigationDrawerItem(
                             label = {
                                 Text(
-                                    text = "Friends",
+                                    text = stringResource(id = R.string.friends),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp
                                 )
@@ -273,7 +275,7 @@ fun ImmutableNavigationDrawer(
                         NavigationDrawerItem(
                             label = {
                                 Text(
-                                    text = "Sign Out",
+                                    text = stringResource(id = R.string.sign_out),
                                     fontSize = 18.sp
                                 )
                             },
