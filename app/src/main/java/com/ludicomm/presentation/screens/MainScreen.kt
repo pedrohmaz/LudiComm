@@ -184,18 +184,19 @@ fun MainScreen(
                             Spacer(modifier = Modifier.height(70.dp))
                             Text(
                                 text = stringResource(R.string.welcome, userName!!),
+                                style = MaterialTheme.typography.bodyLarge,
                                 fontSize = 20.sp
                             )
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            MainSquareButton(
-                                text = stringResource(R.string.create_match),
-                                bgColor = Color.White,
-                                textColor = Purple40,
-                                borderColors = listOf(PurplePlayer, LightBluePlayer)
-                            ) {
-
-                            }
+//                            MainSquareButton(
+//                                text = stringResource(R.string.create_match),
+//                                bgColor = Color.White,
+//                                textColor = Purple40,
+//                                borderColors = listOf(PurplePlayer, LightBluePlayer)
+//                            ) {
+//
+//                            }
 
                             Button(onClick = { navController.navigate(CREATE_MATCH) }) {
                                 Text(text = stringResource(R.string.create_match))
